@@ -2,3 +2,7 @@ C:\Users\Mark\Documents\GitHub\MonoDevelop\CSE 1301\Lab01\bin\Debug\Lab01.exe
 C:\Users\Mark\Documents\GitHub\MonoDevelop\CSE 1301\Lab01\bin\Debug\Lab01.pdb
 C:\Users\Mark\Documents\GitHub\MonoDevelop\CSE 1301\Lab01\obj\x86\Debug\Lab01.exe
 C:\Users\Mark\Documents\GitHub\MonoDevelop\CSE 1301\Lab01\obj\x86\Debug\Lab01.pdb
+C:\Users\Mark\Documents\GitHub\CS1301-Repository\MonoDevelop\CSE 1301\Lab01\bin\Debug\Lab01.exe
+C:\Users\Mark\Documents\GitHub\CS1301-Repository\MonoDevelop\CSE 1301\Lab01\bin\Debug\Lab01.pdb
+C:\Users\Mark\Documents\GitHub\CS1301-Repository\MonoDevelop\CSE 1301\Lab01\obj\x86\Debug\Lab01.exe
+C:\Users\Mark\Documents\GitHub\CS1301-Repository\MonoDevelop\CSE 1301\Lab01\obj\x86\Debug\Lab01.pdb
