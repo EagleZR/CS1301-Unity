@@ -71,7 +71,7 @@ namespace Lab01 //If you're importing this into your editor, make sure that this
 		}
 
 		public void setWords(int newWords){
-			this.words = newWords;
+			//this.words = newWords;
 		}
 		// ------------------------------ End Behavior ------------------------------------
 	}
