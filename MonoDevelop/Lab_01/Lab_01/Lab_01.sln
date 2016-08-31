@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab_01", "Lab_01\Lab_01.csproj", "{7E67E8AF-3EA8-4201-BF14-99E7D8254B12}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab_01_BMI", "Lab_01\Lab_01_BMI.csproj", "{7E67E8AF-3EA8-4201-BF14-99E7D8254B12}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab_01_GPA", "Lab_01_GPA\Lab_01_GPA.csproj", "{42F90F92-CD97-4407-9FCF-FBDA493E50BE}"
 EndProject

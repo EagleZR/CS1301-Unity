@@ -9,12 +9,13 @@ namespace Lab_01
 
 			// Read GPA input
 			Console.WriteLine ("Please input your GPA:");
-			string input1 = Console.ReadLine ();
+			string input1 = Console.ReadLine (); // So an inputted word doesn't crash it
 			while (!Double.TryParse (input1, out GPA)) { 
 				Console.WriteLine ("That is not a number. Please input your GPA as a number:"); 
 				input1 = Console.ReadLine ();
 			}
 
+			// Output category
 			if (GPA > 3.5) {
 				Console.WriteLine ("Congratulations! You will graduate with honors!\n");
 			} else if (GPA < 2.0) {
