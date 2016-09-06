@@ -123,4 +123,8 @@ public class PlayerController : MonoBehaviour {
 		end = true;
 		restartText.text = "Please press 'R' to restart";
 	}
+
+	void TankInitiator(){
+
+	}
 }

@@ -23,6 +23,13 @@ public class PlayerController : MonoBehaviour {
 		moveText.text = "";
 	}
 
+	void Update() {
+		if (Input.GetKey (KeyCode.Escape)) {
+			Application.Quit ();
+			print ("Quitting Application.");
+		}
+	}
+
 	void FixedUpdate () {
 		float moveHorizontal = Input.GetAxis ("Horizontal");
 		float moveVertical = Input.GetAxis ("Vertical");
