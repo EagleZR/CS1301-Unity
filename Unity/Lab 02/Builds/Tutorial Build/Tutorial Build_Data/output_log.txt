@@ -16,13 +16,13 @@ Platform assembly: C:\Users\Mark\Documents\GitHub\CS1301-Repository\Unity\Lab 02
 Loading C:\Users\Mark\Documents\GitHub\CS1301-Repository\Unity\Lab 02\Builds\Tutorial Build_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
 Platform assembly: C:\Users\Mark\Documents\GitHub\CS1301-Repository\Unity\Lab 02\Builds\Tutorial Build_Data\Managed\UnityEngine.Analytics.dll (this message is harmless)
 Loading C:\Users\Mark\Documents\GitHub\CS1301-Repository\Unity\Lab 02\Builds\Tutorial Build_Data\Managed\UnityEngine.Analytics.dll into Unity Child Domain
-- Completed reload, in  0.045 seconds
+- Completed reload, in  0.129 seconds
 Platform assembly: C:\Users\Mark\Documents\GitHub\CS1301-Repository\Unity\Lab 02\Builds\Tutorial Build_Data\Managed\System.Core.dll (this message is harmless)
 Platform assembly: C:\Users\Mark\Documents\GitHub\CS1301-Repository\Unity\Lab 02\Builds\Tutorial Build_Data\Managed\System.dll (this message is harmless)
 desktop: 2160x1440 59Hz; virtual: 2160x1440 at 0,0
 <RI> Initializing input.
 <RI> Input initialized.
 <RI> Initialized touch support.
-UnloadTime: 1.166937 ms
+UnloadTime: 7.327383 ms
 Setting up 1 worker threads for Enlighten.
-  Thread -> id: 604 -> priority: 1 
+  Thread -> id: 2e80 -> priority: 1 
