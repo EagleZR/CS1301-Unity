@@ -108,7 +108,11 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void EndGame(){
-
+		winText.text = "You Lose";
+		restartText.text = "Please press 'R' to play again.";
+		play = false;
+		end = true;
+		rb.velocity = new Vector3 (0, 0, 0);
 	}
 
 	void WinGame(){
