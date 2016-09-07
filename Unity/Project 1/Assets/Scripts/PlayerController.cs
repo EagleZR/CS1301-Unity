@@ -5,6 +5,8 @@ using System.Collections;
 public class PlayerController : MonoBehaviour {
 
 	public float speed;
+	public float rotateSpeed;
+	public float jumpSpeed;
 	//public Text countText;
 	public Text winText;
 	//public Text moveText;
@@ -12,6 +14,9 @@ public class PlayerController : MonoBehaviour {
 	public Text countdownText;
 	public Text debugText;
 	public Text restartText;
+	public Text keymapText;
+	public GameObject keymap;
+	public bool keymapOn;
 
 	private Rigidbody rb;
 	//private int count;
@@ -19,6 +24,7 @@ public class PlayerController : MonoBehaviour {
 	private bool play;
 	private bool end;
 	private double currDelay; 
+	private bool onGround;
 
 	void Start () {
 		rb = GetComponent<Rigidbody> ();
@@ -34,6 +40,9 @@ public class PlayerController : MonoBehaviour {
 		countdownText.text = interval.ToString();
 		debugText.text = "";
 		restartText.text = ""; 
+		onGround = true;
+		keymapText.text = "Please press 'F1' to hide the controls.";
+		keymapOn = true;
 	}
 
 	void Update() {
@@ -61,21 +70,69 @@ public class PlayerController : MonoBehaviour {
 			Application.Quit ();
 			print ("Quitting Application.");
 		}
+
+		if (Input.GetKeyDown (KeyCode.F1)) {
+			if (keymapOn) {
+				keymapText.text = "Please press 'F1' to show the controls.";
+				keymap.SetActive (false);
+				keymapOn = false;
+			} else {
+				keymapText.text = "Please press 'F1' to hide the controls.";
+				keymap.SetActive (true);
+				keymapOn = true;
+			}
+		}
 	}
 
 	void FixedUpdate () {
 		if (play) {
+			// Rotate right
+			if (Input.GetKey (KeyCode.D)) {
+				transform.Rotate (Vector3.up * Time.deltaTime * rotateSpeed);
+			}
+			// Rotate Left
+			if (Input.GetKey (KeyCode.A)) {
+				transform.Rotate (Vector3.down * Time.deltaTime * rotateSpeed);
+			}
+			// Move Forward
+			if (Input.GetKey (KeyCode.W)) {
+				transform.Translate (Vector3.forward * Time.deltaTime * speed);
+			}
+			// Move Back
+			if (Input.GetKey (KeyCode.S)) {
+				transform.Translate (Vector3.back * Time.deltaTime * speed);
+			}
+			// Move Left
+			if (Input.GetKey (KeyCode.Q)) {
+				transform.Translate (Vector3.left * Time.deltaTime * speed);
+			}
+			// Move Right
+			if (Input.GetKey (KeyCode.E)) {
+				transform.Translate (Vector3.right * Time.deltaTime * speed);
+			}
+			// Jump
+			if (Input.GetKeyDown (KeyCode.Space)) {
+				if (onGround){
+					print ("Jump.");
+					rb.AddForce (Vector3.up * Time.deltaTime * jumpSpeed);
+					onGround = false;
+					// rb.AddForce (new Vector3 (0, Time.deltaTime * speed, 0));
+				}
+			}
+
+			/* 
 			float moveHorizontal = Input.GetAxis ("Horizontal");
 			float moveVertical = Input.GetAxis ("Vertical");
 
 			Vector3 movement = new Vector3 (moveHorizontal, 0.0f, moveVertical);
+			*/
 
 			//moveCount += System.Math.Abs((int)System.Math.Round (moveHorizontal, 0)) + System.Math.Abs((int)System.Math.Round (moveVertical, 0));
 
 			// print (moveCount);
 			//moveText.text = "Movement: " + moveCount.ToString();
 
-			rb.AddForce (movement * speed);
+			// rb.AddForce (movement * speed);
 		} else {
 			rb.velocity = new Vector3 (0, 0, 0);
 		}
@@ -84,13 +141,20 @@ public class PlayerController : MonoBehaviour {
 	void OnTriggerEnter(Collider other) {
 		print ("Collision detected.");
 		if (other.gameObject.CompareTag ("Bottom Plane")) {
-			resetPlayer();
+			resetPlayer ();
 		} else if (other.gameObject.CompareTag ("End Plane")) {
 			WinGame ();
 		} else if (other.gameObject.CompareTag ("Enemy")) {
 			EndGame ();
+		} 
+	}
+
+	void OnCollisionEnter (Collision other) {
+		if (other.gameObject.CompareTag ("Ground")) {
+			onGround = true;
 		}
 	}
+
 	//
 //	void setCountText(){
 //		countText.text = "Count: " + count.ToString ();
@@ -105,6 +169,7 @@ public class PlayerController : MonoBehaviour {
 		print ("Resetting.");
 		rb.velocity = new Vector3 (0, 0, 0);
 		transform.position = new Vector3 (0, 0.5f, 0);
+		transform.rotation = Quaternion.identity;
 	}
 
 	void EndGame(){
