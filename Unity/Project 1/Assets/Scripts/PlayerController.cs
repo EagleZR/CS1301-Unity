@@ -68,7 +68,7 @@ public class PlayerController : MonoBehaviour {
 
 		if (Input.GetKey (KeyCode.Escape)) {
 			Application.Quit ();
-			print ("Quitting Application.");
+			// print ("Quitting Application.");
 		}
 
 		if (Input.GetKeyDown (KeyCode.F1)) {
@@ -96,24 +96,28 @@ public class PlayerController : MonoBehaviour {
 			}
 			// Move Forward
 			if (Input.GetKey (KeyCode.W)) {
+				// rb.AddForce (Vector3.forward * Time.deltaTime * speed);
 				transform.Translate (Vector3.forward * Time.deltaTime * speed);
 			}
 			// Move Back
 			if (Input.GetKey (KeyCode.S)) {
+				// rb.AddForce (Vector3.back * Time.deltaTime * speed);
 				transform.Translate (Vector3.back * Time.deltaTime * speed);
 			}
 			// Move Left
 			if (Input.GetKey (KeyCode.Q)) {
+				// rb.AddForce (Vector3.left * Time.deltaTime * speed);
 				transform.Translate (Vector3.left * Time.deltaTime * speed);
 			}
 			// Move Right
 			if (Input.GetKey (KeyCode.E)) {
+				// rb.AddForce (Vector3.right * Time.deltaTime * speed);
 				transform.Translate (Vector3.right * Time.deltaTime * speed);
 			}
 			// Jump
 			if (Input.GetKeyDown (KeyCode.Space)) {
 				if (onGround){
-					print ("Jump.");
+					// print ("Jump.");
 					rb.AddForce (Vector3.up * Time.deltaTime * jumpSpeed);
 					onGround = false;
 					// rb.AddForce (new Vector3 (0, Time.deltaTime * speed, 0));

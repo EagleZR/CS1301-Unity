@@ -1,7 +1,0 @@
-Tank 1 Start
-Tank 1 Path 1
-Tank 1 Path 2
-Tank 1 Path 3
-Tank 1 Path 4
-Tank 1 Path 5a
-Tank 1 End a
