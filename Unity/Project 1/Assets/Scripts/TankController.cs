@@ -8,7 +8,7 @@ public class TankController : MonoBehaviour {
 	// public TextAsset waypointText;
 	// public string waypointFileName;
 
-	private Rigidbody rb;
+	// private Rigidbody rb;
 	private Transform target;
 	private bool rotateGood;
 	// private bool isGrounded;
@@ -18,18 +18,21 @@ public class TankController : MonoBehaviour {
 	private int currWaypoint;
 
 	void Start () {
-		rb = GetComponent<Rigidbody> ();
+		// rb = GetComponent<Rigidbody> ();
 		rotateGood = false;
 		// isGrounded = true;
 		currWaypoint = 1;
 
-		TextAsset waypointText = Resources.Load("TextFiles/Tank") as TextAsset;
+		TextAsset waypointText = Resources.Load("TextFiles/Tank 1 Path a") as TextAsset;
 		waypointString = waypointText.ToString();
 		CreateWaypointsObject ();
-		target = GameObject.Find ((string)waypoints[currWaypoint]).transform;
+		string currWaypointText = (string)waypoints [currWaypoint];
+		// print (currWaypointText.Length);
+		target = GameObject.Find (currWaypointText).transform;
+		// print (waypoints[currWaypoint] + " , " + target.name);
 	}
 
-	void Update () {
+	void FixedUpdate () {
 		// GravityPull ();
 		if (!rotateGood) {
 			Rotate ();
@@ -39,12 +42,22 @@ public class TankController : MonoBehaviour {
 	}
 
 	void OnTriggerEnter (Collider other) {
-		if(other.name.Equals(target.name)) {
+		if (target.name.Contains("End")) {
+			// keep driving
+		} else if(other.name.Equals(target.name)) {
 			rotateGood = false;
-			target = GameObject.Find ("Tank 1 Waypoint 4").transform;
-		} else if(other.gameObject.CompareTag("Ground")){
+			currWaypoint++;
+			string waypoint = (string) waypoints [currWaypoint];
+			target = GameObject.Find (waypoint).transform;
+			print (target.name);
+		} 
+		if(other.gameObject.CompareTag("Bottom Plane")){
+			rotateGood = false;
 			currWaypoint = 0;
-			transform.position = GameObject.Find((string)waypoints[currWaypoint]).transform.position;
+			string waypoint = (string)waypoints [currWaypoint];
+			target = GameObject.Find (waypoint).transform;
+			transform.position = target.position;
+			transform.rotation = Quaternion.identity;
 		}
 	}
 
@@ -70,7 +83,7 @@ public class TankController : MonoBehaviour {
 		if (!rotateGood) {
 			if (Vector3.Angle (placeHolder2, transformPlaceholder - targetPosition) == 180f) {
 				rotateGood = true;
-				// print ("G2G");
+				print ("G2G");
 			}
 		}
 	}
@@ -97,9 +110,10 @@ public class TankController : MonoBehaviour {
 		while (waypointString.Length != 0 /*&& i < exit*/) {
 			int index = waypointString.IndexOf ("\n");
 			string waypoint = waypointString.Substring (0, index);
+			waypoint = waypoint.Trim ();
 			waypoints.Add (waypoint);
 			waypointString = waypointString.Substring (index + 1);
-			print (waypoint + " , " + waypointString);
+			// print (waypoint + " , " + waypointString);
 			// i++;
 		}
 	}

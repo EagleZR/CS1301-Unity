@@ -143,20 +143,20 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider other) {
-		print ("Collision detected.");
+		// print ("Collision detected.");
 		if (other.gameObject.CompareTag ("Bottom Plane")) {
 			resetPlayer ();
 		} else if (other.gameObject.CompareTag ("End Plane")) {
 			WinGame ();
-		} else if (other.gameObject.CompareTag ("Enemy")) {
-			EndGame ();
 		} 
 	}
 
 	void OnCollisionEnter (Collision other) {
 		if (other.gameObject.CompareTag ("Ground")) {
 			onGround = true;
-		}
+		} else if (other.gameObject.CompareTag ("Enemy")) {
+			EndGame ();
+		} 
 	}
 
 	//
@@ -169,8 +169,9 @@ public class PlayerController : MonoBehaviour {
 
 	void resetPlayer(){
 		play = false;
+		winText.text = "You will spawn in:";
 		currDelay = 0;
-		print ("Resetting.");
+		// print ("Resetting.");
 		rb.velocity = new Vector3 (0, 0, 0);
 		transform.position = new Vector3 (0, 0.5f, 0);
 		transform.rotation = Quaternion.identity;
@@ -185,7 +186,7 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void WinGame(){
-		print ("You win!");
+		// print ("You win!");
 		winText.text = "You Win!";
 		rb.velocity = new Vector3 (0, 0, 0);
 		play = false;
