@@ -7,29 +7,36 @@ public class TankController : MonoBehaviour {
 	public float rotateSpeed;
 	// public TextAsset waypointText;
 	// public string waypointFileName;
+	public string waypointA;
+	public string waypointB; 
 
-	private Rigidbody rb;
+	private string otherWaypoint;
+	// private Rigidbody rb;
 	private Transform target;
 	private bool rotateGood;
 	// private bool isGrounded;
-	private string waypointString;
+	// private string waypointString;
 	// private TextAsset waypointText;
-	private ArrayList waypoints; 
-	private int currWaypoint;
+	// private ArrayList waypoints; 
+	// private int currWaypoint;
 
 	void Start () {
-		rb = GetComponent<Rigidbody> ();
+		// rb = GetComponent<Rigidbody> ();
 		rotateGood = false;
 		// isGrounded = true;
-		currWaypoint = 1;
+		// currWaypoint = 1;
 
-		TextAsset waypointText = Resources.Load("TextFiles/Tank") as TextAsset;
-		waypointString = waypointText.ToString();
-		CreateWaypointsObject ();
-		target = GameObject.Find ((string)waypoints[currWaypoint]).transform;
+		// TextAsset waypointText = Resources.Load("TextFiles/Tank 1 Path a") as TextAsset;
+		// waypointString = waypointText.ToString();
+		// CreateWaypointsObject ();
+		// string currWaypointText = (string)waypoints [currWaypoint];
+		// print (currWaypointText.Length);
+		otherWaypoint = waypointA;
+		target = GameObject.Find (waypointB/*currWaypointText*/).transform;
+		// print (waypoints[currWaypoint] + " , " + target.name);
 	}
 
-	void Update () {
+	void FixedUpdate () {
 		// GravityPull ();
 		if (!rotateGood) {
 			Rotate ();
@@ -39,14 +46,38 @@ public class TankController : MonoBehaviour {
 	}
 
 	void OnTriggerEnter (Collider other) {
-		if(other.name.Equals(target.name)) {
+		/* if (target.name.Contains("End")) {
+			// keep driving
+		} else */ if(other.name.Equals(target.name)) {
 			rotateGood = false;
-			target = GameObject.Find ("Tank 1 Waypoint 4").transform;
-		} else if(other.gameObject.CompareTag("Ground")){
-			currWaypoint = 0;
-			transform.position = GameObject.Find((string)waypoints[currWaypoint]).transform.position;
+			// currWaypoint++;
+			// string waypoint = (string) waypoints [currWaypoint];
+			string temp = target.name;
+			target = GameObject.Find (otherWaypoint/*waypoint*/).transform;
+			otherWaypoint = temp;
+			// print (target.name);
+		} 
+		if(other.gameObject.CompareTag("Bottom Plane")){
+			rotateGood = false;
+			// currWaypoint = 0;
+			// string waypoint = (string)waypoints [currWaypoint];
+			target = GameObject.Find (waypointA/*waypoint*/).transform;
+			otherWaypoint = waypointB;
+			transform.position = target.position;
+			transform.rotation = Quaternion.identity;
 		}
 	}
+
+	// It's funnier without this...
+	/* 
+	void OnCollide (Collider other) {
+		rotateGood = false;
+		target = GameObject.Find (waypointA).transform;
+		otherWaypoint = waypointB;
+		transform.position = target.position;
+		transform.rotation = Quaternion.identity;
+	}
+*/
 
 	void Move () {
 		// Rotate ();
@@ -90,18 +121,21 @@ public class TankController : MonoBehaviour {
 	}
 	*/
 
+	/*
 	// int exit = 10; 
 	// int i = 0;
 	void CreateWaypointsObject () {
 		waypoints = new ArrayList();
-		while (waypointString.Length != 0 /*&& i < exit*/) {
+		while (waypointString.Length != 0 && i < exit) {
 			int index = waypointString.IndexOf ("\n");
 			string waypoint = waypointString.Substring (0, index);
+			waypoint = waypoint.Trim ();
 			waypoints.Add (waypoint);
 			waypointString = waypointString.Substring (index + 1);
-			print (waypoint + " , " + waypointString);
+			// print (waypoint + " , " + waypointString);
 			// i++;
 		}
 	}
+	*/
 } 
 // answers.unity3d.com/questions/894796/how-to-make-object-follow-path.html
