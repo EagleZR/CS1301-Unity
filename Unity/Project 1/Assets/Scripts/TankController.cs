@@ -76,9 +76,10 @@ public class TankController : MonoBehaviour {
 		Vector3 placeHolder2 = new Vector3 (transform.forward.x, 0, transform.forward.z);
 
 		// Rotate imaginary-high tank to imaginary-high target
-		Vector3 rotation = Vector3.RotateTowards (transform.forward, targetPosition - transformPlaceholder, rotateSpeed * Time.deltaTime, 0.0f);
+		// Vector3 rotation = Vector3.RotateTowards (transform.forward, targetPosition - transformPlaceholder, rotateSpeed * Time.deltaTime, 0.0f);
 		// print (rotation);
-		transform.forward = rotation; 
+		// transform.forward = rotation; 
+		transform.LookAt(target);
 
 		if (!rotateGood) {
 			if (Vector3.Angle (placeHolder2, transformPlaceholder - targetPosition) == 180f) {
