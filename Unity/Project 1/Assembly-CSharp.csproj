@@ -52,6 +52,7 @@
      <Compile Include="Assets\Scripts\Tank\TankShooting.cs" />
      <Compile Include="Assets\Scripts\TankController.cs" />
      <None Include="Assets\Resources\TextFiles\Tank 1 Path a.txt" />
+     <None Include="Assets\Scripts\readme.txt" />
      <None Include="Assets\Resources\TextFiles\Tank 1 Path b.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>G:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
