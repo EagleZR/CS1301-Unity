@@ -1,90 +1,82 @@
-﻿using UnityEngine;
+﻿/* Author: Mark Zeagler
+ * Class: CS 1301
+ * Insructor: Mona Chavoshi
+ * Project: Game 1
+ * 
+ * Project Description: This is a game where a single player attempts to navigate a simple 3D maze while avoiding enemies
+ * travelling back and forth between waypoints. 
+ * 
+ * Class Description: This class handles the Enemy tank movements. Most notably, it takes the tank from its given waypointA
+ * to its waypointB, and back again. It also resets the tanks should they come in contact with the Bottom Plane. I needed 
+ * some help with getting the tanks to go where I wanted them to, and I documented the sources that influenced my design. 
+ * 
+ * Development Process: Initially, I was going to have the tanks spawned by the PlayerController.cs at the start of the game,
+ * but it proved too troublesome. On a whim, I decided to just have the tanks go back-and-forth between 2 waypoints, and their
+ * chaotic collisions were hilarious enough that I decided to keep it. 
+ * 
+ * I had a lot of issues getting the tank to follow the waypoint list. Initially, I decided to allow the tanks to rotate while
+ * moving, but I had to disable it due to some issues with the ramps. It, too, was temporary, but the secondary effects following
+ * the tank-on-tank collisions also made it worth leaving as is. 
+ * 
+ * */
+
+using UnityEngine;
 using System.Collections;
 
 public class TankController : MonoBehaviour {
 
 	public float speed;
 	public float rotateSpeed;
-	// public TextAsset waypointText;
-	// public string waypointFileName;
+
+	// The two waypoints that the tank will go between. They have to be typed in the Unity Inspector. 
 	public string waypointA;
 	public string waypointB; 
 
-	private string otherWaypoint;
-	// private Rigidbody rb;
-	private Transform target;
-	private bool rotateGood;
-	// private bool isGrounded;
-	// private string waypointString;
-	// private TextAsset waypointText;
-	// private ArrayList waypoints; 
-	// private int currWaypoint;
+	private string otherWaypoint; // A third string used for target switching. 
+	private Transform target; 
+	private bool rotateGood; // This variable is used on the initial rotation. The tank is not allowed to move until it's pointed at its target. 
 
 	void Start () {
-		// rb = GetComponent<Rigidbody> ();
-		rotateGood = false;
-		// isGrounded = true;
-		// currWaypoint = 1;
-
-		// TextAsset waypointText = Resources.Load("TextFiles/Tank 1 Path a") as TextAsset;
-		// waypointString = waypointText.ToString();
-		// CreateWaypointsObject ();
-		// string currWaypointText = (string)waypoints [currWaypoint];
-		// print (currWaypointText.Length);
-		otherWaypoint = waypointA;
-		target = GameObject.Find (waypointB/*currWaypointText*/).transform;
-		// print (waypoints[currWaypoint] + " , " + target.name);
+		rotateGood = false; // Tank cannot rotate until it is pointed at its target.
+		otherWaypoint = waypointA; // Once it reaches the target, the new target will be selected by GameObject.Find(otherWaypoint).transform. 
+		target = GameObject.Find (waypointB).transform;
 	}
 
 	void FixedUpdate () {
-		// GravityPull ();
 		if (!rotateGood) {
-			Rotate ();
+			Rotate (); // Cannot drive while it is rotating.
 		} else {
-			Move ();
+			Move (); // Cannot rotate while it is driving. 
 		}
 	}
 
 	void OnTriggerEnter (Collider other) {
-		/* if (target.name.Contains("End")) {
-			// keep driving
-		} else */ if(other.name.Equals(target.name)) {
+		if(other.name.Equals(target.name)) { // Trigger for Waypoint arrival.
+			// New waypoint selected. 
 			rotateGood = false;
-			// currWaypoint++;
-			// string waypoint = (string) waypoints [currWaypoint];
 			string temp = target.name;
-			target = GameObject.Find (otherWaypoint/*waypoint*/).transform;
+			target = GameObject.Find (otherWaypoint).transform;
 			otherWaypoint = temp;
-			// print (target.name);
 		} 
-		if(other.gameObject.CompareTag("Bottom Plane")){
+		if(other.gameObject.CompareTag("Bottom Plane")){ // Trigger for falling off the edge. 
+			// Tank is reset. 
 			rotateGood = false;
-			// currWaypoint = 0;
-			// string waypoint = (string)waypoints [currWaypoint];
-			target = GameObject.Find (waypointA/*waypoint*/).transform;
+			target = GameObject.Find (waypointA).transform;
 			otherWaypoint = waypointB;
 			transform.position = target.position;
 			transform.rotation = Quaternion.identity;
 		}
 	}
 
-	// It's funnier without this...
-	/* 
-	void OnCollide (Collider other) {
-		rotateGood = false;
-		target = GameObject.Find (waypointA).transform;
-		otherWaypoint = waypointB;
-		transform.position = target.position;
-		transform.rotation = Quaternion.identity;
-	}
-*/
-
+	// Tank only moves forward. 
 	void Move () {
-		// Rotate ();
 		transform.Translate (Vector3.forward * Time.deltaTime * speed);
 	}
-
-	void Rotate () {
+		
+	// Due to the inclines and changes in height, the Vector3.RotateTowards() function had to be tricked into thinking that both the Tank and the 
+	// target were the same height. This method was originally run while the tank was moving, but it led to some issues when the tank would go
+	// up/down a ramp while pointed directly ahead. This way is funnier, anyways. 
+	void Rotate () { // answers.unity3d.com/questions/894796/how-to-make-object-follow-path.html
 		Vector3 targetPosition = target.transform.position; // answers.unity3d.com/questions/54973/rotate-an-object-to-look-at-another-object-on-one.html
 		// Trick target height to 0
 		targetPosition.y = 0;
@@ -95,47 +87,12 @@ public class TankController : MonoBehaviour {
 
 		// Rotate imaginary-high tank to imaginary-high target
 		Vector3 rotation = Vector3.RotateTowards (transform.forward, targetPosition - transformPlaceholder, rotateSpeed * Time.deltaTime, 0.0f);
-		// print (rotation);
 		transform.forward = rotation; 
 
 		if (!rotateGood) {
 			if (Vector3.Angle (placeHolder2, transformPlaceholder - targetPosition) == 180f) {
 				rotateGood = true;
-				// print ("G2G");
 			}
 		}
 	}
-
-	/*
-	// http://answers.unity3d.com/questions/585997/monodevelop-401-copy-paste-issue.html
-	void GravityPull () {
-		float snapDistance = 1.1f; //Adjust this based on the CharacterController's height and the slopes you want to handle - my CharacterController's height is 1.8 
-		RaycastHit hitInfo = new RaycastHit();
-		if (Physics.Raycast(new Ray(transform.position, Vector3.down), out hitInfo, snapDistance)) {
-			isGrounded = true;
-			transform.position = hitInfo.point;
-			transform.position = new Vector3(hitInfo.point.x, hitInfo.point.y, hitInfo.point.z);
-		} else {
-			isGrounded = false;
-		}
-	}
-	*/
-
-	/*
-	// int exit = 10; 
-	// int i = 0;
-	void CreateWaypointsObject () {
-		waypoints = new ArrayList();
-		while (waypointString.Length != 0 && i < exit) {
-			int index = waypointString.IndexOf ("\n");
-			string waypoint = waypointString.Substring (0, index);
-			waypoint = waypoint.Trim ();
-			waypoints.Add (waypoint);
-			waypointString = waypointString.Substring (index + 1);
-			// print (waypoint + " , " + waypointString);
-			// i++;
-		}
-	}
-	*/
 } 
-// answers.unity3d.com/questions/894796/how-to-make-object-follow-path.html
