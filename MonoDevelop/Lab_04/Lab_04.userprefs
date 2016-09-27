@@ -1,0 +1,13 @@
+﻿<Properties StartupItem="Lab_04\Lab_04.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Lab_04\Course.cs">
+    <Files>
+      <File FileName="Lab_04\Program.cs" Line="13" Column="32" />
+      <File FileName="Lab_04\Course.cs" Line="26" Column="22" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
