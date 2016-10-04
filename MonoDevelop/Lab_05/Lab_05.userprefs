@@ -1,1 +1,14 @@
-﻿<Properties StartupItem="Lab_05\Lab_05.csproj" />
+﻿<Properties StartupItem="Lab_05\Lab_05.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Lab_05\Battery.cs">
+    <Files>
+      <File FileName="Lab_05\Program.cs" Line="14" Column="47" />
+      <File FileName="Lab_05\Phone.cs" Line="106" Column="219" />
+      <File FileName="Lab_05\Battery.cs" Line="55" Column="12" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

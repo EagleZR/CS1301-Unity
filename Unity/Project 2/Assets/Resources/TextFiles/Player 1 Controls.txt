@@ -1,0 +1,8 @@
+Forward: W
+Back: S
+Left: Q
+Right: R
+RLeft: A
+RRight: D
+Jump: LeftAlt
+Reset: R

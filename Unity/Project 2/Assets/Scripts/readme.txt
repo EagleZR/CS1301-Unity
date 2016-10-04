@@ -1,0 +1,2 @@
+The .dev files are the uncommented scripts I used in development. They also have a lot of commented out code that ended up not being used. 
+The .cs files are cleaned up and commented to be easily readable. 

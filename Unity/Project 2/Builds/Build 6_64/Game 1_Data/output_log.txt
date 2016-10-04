@@ -1,0 +1,28 @@
+Initialize engine version: 5.4.0f3 (a6d8d714de6f)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.0]
+    Renderer: Intel(R) HD Graphics 5000 (ID=0xa26)
+    Vendor:   Intel
+    VRAM:     1136 MB
+Begin MonoManager ReloadAssembly
+Platform assembly: C:\Users\Mark\Documents\GitHub\CS1301-Unity\Unity\Project 1\Builds\Build 6_64\Game 1_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading C:\Users\Mark\Documents\GitHub\CS1301-Unity\Unity\Project 1\Builds\Build 6_64\Game 1_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: C:\Users\Mark\Documents\GitHub\CS1301-Unity\Unity\Project 1\Builds\Build 6_64\Game 1_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading C:\Users\Mark\Documents\GitHub\CS1301-Unity\Unity\Project 1\Builds\Build 6_64\Game 1_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: C:\Users\Mark\Documents\GitHub\CS1301-Unity\Unity\Project 1\Builds\Build 6_64\Game 1_Data\Managed\UnityEngine.UI.dll (this message is harmless)
+Loading C:\Users\Mark\Documents\GitHub\CS1301-Unity\Unity\Project 1\Builds\Build 6_64\Game 1_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
+Platform assembly: C:\Users\Mark\Documents\GitHub\CS1301-Unity\Unity\Project 1\Builds\Build 6_64\Game 1_Data\Managed\UnityEngine.Networking.dll (this message is harmless)
+Loading C:\Users\Mark\Documents\GitHub\CS1301-Unity\Unity\Project 1\Builds\Build 6_64\Game 1_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
+Platform assembly: C:\Users\Mark\Documents\GitHub\CS1301-Unity\Unity\Project 1\Builds\Build 6_64\Game 1_Data\Managed\UnityEngine.Analytics.dll (this message is harmless)
+Loading C:\Users\Mark\Documents\GitHub\CS1301-Unity\Unity\Project 1\Builds\Build 6_64\Game 1_Data\Managed\UnityEngine.Analytics.dll into Unity Child Domain
+- Completed reload, in  0.171 seconds
+Platform assembly: C:\Users\Mark\Documents\GitHub\CS1301-Unity\Unity\Project 1\Builds\Build 6_64\Game 1_Data\Managed\System.Core.dll (this message is harmless)
+Platform assembly: C:\Users\Mark\Documents\GitHub\CS1301-Unity\Unity\Project 1\Builds\Build 6_64\Game 1_Data\Managed\System.dll (this message is harmless)
+desktop: 2160x1440 59Hz; virtual: 2160x1440 at 0,0
+<RI> Initializing input.
+<RI> Input initialized.
+<RI> Initialized touch support.
+UnloadTime: 1.362839 ms
+Setting up 1 worker threads for Enlighten.
+  Thread -> id: 1988 -> priority: 1 
