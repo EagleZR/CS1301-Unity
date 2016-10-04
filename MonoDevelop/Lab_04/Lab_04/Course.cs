@@ -26,7 +26,7 @@ namespace Lab_04
 			if (prefix == null) {
 				return "Course not initialized.";
 			} else {
-				return prefix + courseNumber;
+				return prefix + courseNumber + " \nCourse Hours: " + courseHours + "\nCourse Description: " + description;
 			}
 		}
 	}
