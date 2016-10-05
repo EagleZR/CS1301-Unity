@@ -47,7 +47,7 @@ public class PlayerController : MonoBehaviour {
 
 	private KeyCode forward, back, left, right, r_left, r_right, jump, reset;
 
-	TextAsset controls;
+	public TextAsset controls;
 
 	void Start () {
 		DefineControls ();
