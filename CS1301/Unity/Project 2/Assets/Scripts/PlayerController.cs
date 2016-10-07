@@ -45,12 +45,14 @@ public class PlayerController : MonoBehaviour {
 	private bool end; // Set to true when player collides with enemy or hits the finish area trigger. Set to true after player hits reset button. 
 	private bool onGround; // Determines if the player can jump or not. Currently, if the player leaves the ground without jumping (falls), jump is still enabled, but that isn't an issue. 
 
-	private KeyCode forward, back, left, right, r_left, r_right, jump, reset;
+	private KeyCode[] keys;
+	private int forward, back, left, right, r_left, r_right, jump, reset; // Codes for the keys
 
 	public TextAsset controls;
 
+	private Vector3 startPosition;
+
 	void Start () {
-		DefineControls ();
 		rb = gameObject.GetComponent<Rigidbody> ();
 		winText.text = "You will spawn in:";
 		play = false;
@@ -63,6 +65,19 @@ public class PlayerController : MonoBehaviour {
 		onGround = true;
 		keymapText.text = "Please press 'F1' to hide the controls.";
 		keymapOn = true;
+		startPosition = gameObject.transform.position;
+
+		// Codes for the keys
+		keys = new KeyCode[8];
+		forward = 0;
+		back = 1;
+		left = 2;
+		right = 3;
+		r_left = 4;
+		r_right = 5;
+		jump = 6;
+		reset = 7;
+		DefineControls ();
 	}
 
 	// Handles non-movement keypresses and respawn timer. 
@@ -83,7 +98,7 @@ public class PlayerController : MonoBehaviour {
 		}
 
 		// Resets the player. 
-		if (end && Input.GetKey (reset)) {
+		if (end && Input.GetKey (keys[reset])) {
 			end = false;
 			resetPlayer ();
 			restartText.text = "";
@@ -114,31 +129,31 @@ public class PlayerController : MonoBehaviour {
 	void FixedUpdate () {
 		if (play) {
 			// Rotate right
-			if (Input.GetKey (r_right)) {
+			if (Input.GetKey (keys[r_right])) {
 				transform.Rotate (Vector3.up * Time.deltaTime * rotateSpeed);
 			}
 			// Rotate Left
-			if (Input.GetKey (r_left)) {
+			if (Input.GetKey (keys[r_left])) {
 				transform.Rotate (Vector3.down * Time.deltaTime * rotateSpeed);
 			}
 			// Move Forward
-			if (Input.GetKey (forward)) {
+			if (Input.GetKey (keys[forward])) {
 				transform.Translate (Vector3.forward * Time.deltaTime * speed);
 			}
 			// Move Back
-			if (Input.GetKey (back)) {
+			if (Input.GetKey (keys[back])) {
 				transform.Translate (Vector3.back * Time.deltaTime * speed);
 			}
 			// Move Left
-			if (Input.GetKey (left)) {
+			if (Input.GetKey (keys[left])) {
 				transform.Translate (Vector3.left * Time.deltaTime * speed);
 			}
 			// Move Right
-			if (Input.GetKey (right)) {
+			if (Input.GetKey (keys[right])) {
 				transform.Translate (Vector3.right * Time.deltaTime * speed);
 			}
 			// Jump
-			if (Input.GetKeyDown (jump)) {
+			if (Input.GetKeyDown (keys[jump])) {
 				if (onGround){
 					rb.AddForce (Vector3.up * Time.deltaTime * jumpSpeed);
 					onGround = false;
@@ -175,7 +190,7 @@ public class PlayerController : MonoBehaviour {
 		winText.text = "You will spawn in:";
 		currDelay = 0;
 		rb.velocity = new Vector3 (0, 0, 0);
-		transform.position = new Vector3 (0, 0.5f, 0);
+		transform.position = startPosition;
 		transform.rotation = Quaternion.identity;
 	}
 
@@ -185,7 +200,7 @@ public class PlayerController : MonoBehaviour {
 		play = false;
 		end = true;
 		rb.velocity = new Vector3 (0, 0, 0);
-		restartText.text = "Please press 'R' to play again.";
+		restartText.text = "Please press '" + keys[7].ToString() + "' to play again.";
 	}
 
 	// Triggered by invisible plane above the finish area.
@@ -194,18 +209,19 @@ public class PlayerController : MonoBehaviour {
 		play = false;
 		end = true;
 		rb.velocity = new Vector3 (0, 0, 0);
-		restartText.text = "Please press 'R' to restart";
+		restartText.text = "Please press '" + keys[7].ToString() + "' to restart";
 	}
 
 	// TODO test the shit out of this
+	// TODO Troubleshoot the respawn issue. Unable to replicate, but one test continued to read a keydown through multiple respawns despite no keypress.
 	void DefineControls() {
 		string controlsText = controls.ToString ();
 		for (int i = 0; i < 8; i++) {
 			int u = controlsText.IndexOf (':');
 			controlsText = controlsText.Substring (u + 2);
-			u = controlsText.IndexOf (" ");
+			u = controlsText.IndexOf ("\n");
 			string key = controlsText.Substring (0, u + 1);
-
+			keys[i] = (KeyCode)System.Enum.Parse(typeof(KeyCode), key);
 		}
 	}
 }
