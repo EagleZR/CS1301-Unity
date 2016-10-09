@@ -1,7 +1,7 @@
 ﻿/* Author: Mark Zeagler
  * Class: CS 1301
  * Insructor: Mona Chavoshi
- * Project: Game 1
+ * Project: Game 2
  * 
  * Project Description: This is a game where a single player attempts to navigate a simple 3D maze while avoiding enemies
  * travelling back and forth between waypoints. 
@@ -33,6 +33,7 @@ public class PlayerController : MonoBehaviour {
 	public Text debugText;
 	public Text restartText;
 	public Text keymapText;
+	public Text centerText;
 
 	public int spawnDelay;
 	public GameObject keymap;
@@ -205,7 +206,8 @@ public class PlayerController : MonoBehaviour {
 
 	// Triggered by invisible plane above the finish area.
 	void WinGame(){
-		winText.text = "You Win!";
+		centerText.text = gameObject.name + " wins!";
+		//winText.text = "You Win!";
 		play = false;
 		end = true;
 		rb.velocity = new Vector3 (0, 0, 0);
