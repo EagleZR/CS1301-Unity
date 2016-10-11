@@ -1,0 +1,4 @@
+C:\Users\Mark\Documents\GitHub\CS1301-Unity\CS1301\MonoDevelop\Lab_06_start\Lab_06_1301\bin\Debug\Lab_06_1301.exe
+C:\Users\Mark\Documents\GitHub\CS1301-Unity\CS1301\MonoDevelop\Lab_06_start\Lab_06_1301\bin\Debug\Lab_06_1301.pdb
+C:\Users\Mark\Documents\GitHub\CS1301-Unity\CS1301\MonoDevelop\Lab_06_start\Lab_06_1301\obj\x86\Debug\Lab_06_1301.exe
+C:\Users\Mark\Documents\GitHub\CS1301-Unity\CS1301\MonoDevelop\Lab_06_start\Lab_06_1301\obj\x86\Debug\Lab_06_1301.pdb
