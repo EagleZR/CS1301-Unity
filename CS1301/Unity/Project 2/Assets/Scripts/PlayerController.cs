@@ -134,17 +134,19 @@ public class PlayerController : MonoBehaviour {
 				transform.Rotate (Vector3.up * Time.deltaTime * rotateSpeed);
 			}
 			// Rotate Left
-			if (Input.GetKey (keys[r_left])) {
+			 if (Input.GetKey (keys[r_left])) {
 				transform.Rotate (Vector3.down * Time.deltaTime * rotateSpeed);
 			}
 			// Move Forward
 			if (Input.GetKey (keys[forward])) {
 				transform.Translate (Vector3.forward * Time.deltaTime * speed);
+				// rb.AddForce(Vector3.forward * Time.deltaTime * speed);
 			}
 			// Move Back
 			if (Input.GetKey (keys[back])) {
 				transform.Translate (Vector3.back * Time.deltaTime * speed);
-			}
+				// rb.AddForce(Vector3.back * Time.deltaTime * speed);
+			} /*
 			// Move Left
 			if (Input.GetKey (keys[left])) {
 				transform.Translate (Vector3.left * Time.deltaTime * speed);
@@ -152,14 +154,14 @@ public class PlayerController : MonoBehaviour {
 			// Move Right
 			if (Input.GetKey (keys[right])) {
 				transform.Translate (Vector3.right * Time.deltaTime * speed);
-			}
+			} */ /*
 			// Jump
 			if (Input.GetKeyDown (keys[jump])) {
 				if (onGround){
 					rb.AddForce (Vector3.up * Time.deltaTime * jumpSpeed);
 					onGround = false;
 				}
-			}
+			} */
 		} else {
 			// Cancels out momentum if character play is disabled (win or Enemy contact). 
 			rb.velocity = new Vector3 (0, 0, 0);
