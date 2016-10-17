@@ -1,35 +1,21 @@
-# =============== #
-# Unity generated #
-# =============== #
-[Tt]emp/
-[Oo]bj/
-[Bb]uild
-[Ll]ibrary/
-sysinfo.txt
-*.stackdump
- 
-# ============================================= #
-# Visual Studio / MonoDevelop / Rider generated #
-# ============================================= #
-[Ee]xported[Oo]bj/
-.vs/
-/*.userprefs
-/*.csproj
-/*.pidb
-/*.suo
-/*.sln*
-/*.user
-/*.unityproj
-/*.booproj
-/.idea*/
- 
-# ============ #
-# OS generated #
-# ============ #
-.DS_Store*
+# Ignore everything
+/*
+/*/
+
+# Inverse ignore some stuff
+!/Assets/
+!/ProjectSettings/
+!/MonoDevelop/
+!.gitignore
+!.gitattributes
+
+
+# OS Stuff
+.DS_Store
 ._*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-[Tt]humbs.db
-[Dd]esktop.ini
+Thumbs.db
+$RECYCLE.BIN/
+Desktop.ini
