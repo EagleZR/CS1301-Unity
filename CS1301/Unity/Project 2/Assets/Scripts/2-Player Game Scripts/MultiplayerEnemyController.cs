@@ -5,19 +5,57 @@ using System.Collections.Generic;
 public class MultiplayerEnemyController : MonoBehaviour {
 
 	public Vector3 destination = new Vector3 (0f, 0f, 0f);
+	public Vector3 startPosition;
+	public Quaternion startRotation;
+	public GameObject tankMesh;
+	public GameObject castingSource;
+
+	public float delayDeath = 2.0f;
+	public float respawnTime = 4.0f;
+	public float sightDistance = 10.0f;
+	public float navigationCheckDistance = 10.0f;
+
+	public GameObject scene;
+
+	public bool isAlive = true;
 
 	public int currLevel; // May make this private later
 
-	private ArrayList players = new ArrayList (); // TODO Check if this can be held in SceneController
-	private ArrayList playersFound = new ArrayList ();
-	private ArrayList enemies = new ArrayList (); // TODO Check if this can be held in SceneController
+	// public Material tankColor;
+
+	private MultiplayerTankController tankController;
+	private MultiplayerSceneController sceneController;
+
+	private Vector3 tempDestination = new Vector3 (0f, 0f, 0f);
+
+	// private Color defaultColor;
+
+	public float deathCounter = 0.0f;
+
+	// private List<GameObject> players = new List <GameObject> (); // TODO Check if this can be held in SceneController
+	private List<GameObject> playersFound = new List<GameObject> ();
+	// private List<GameObject> enemies = new List<GameObject> (); // TODO Check if this can be held in SceneController
 
 	void Start () {
-		players = new ArrayList(GameObject.FindGameObjectsWithTag ("Player"));
-		enemies = new ArrayList(GameObject.FindGameObjectsWithTag ("Enemy"));
+		// defaultColor = gameObject.GetComponentInChildren<Material> ();
+		tankController = gameObject.GetComponent<MultiplayerTankController> ();
+		sceneController = scene.GetComponent<MultiplayerSceneController> ();
+		startPosition = gameObject.transform.position;
+		startRotation = gameObject.transform.rotation;
+		// players = new List<GameObject>(GameObject.FindGameObjectsWithTag ("Player"));
+		// enemies = new List<GameObject>(GameObject.FindGameObjectsWithTag ("Enemy"));
 	}
 
 	void Update () {
+		if (isAlive) {
+			CheckAlive ();
+		} else {
+			Respawn ();
+		}
+		CheckLevel ();
+	}
+
+	void CheckLevel () {
 		float yPos = gameObject.transform.position.y;
 		if (yPos > 16) {
 			currLevel = 4;
@@ -33,10 +71,13 @@ public class MultiplayerEnemyController : MonoBehaviour {
 	}
 
 	void LateUpdate () {
-		if (playersFound.Count == 0) {
-			Patrol ();
-		} else {
-			Attack ();
+		if (isAlive) {
+			LookForPlayers ();
+			if (playersFound.Count == 0) {
+				Patrol ();
+			} else {
+				Attack ();
+			}
 		}
 	}
 
@@ -80,7 +121,9 @@ public class MultiplayerEnemyController : MonoBehaviour {
 		 * 			- Do not want an omnipotent pathifinding system, it's ok if the tanks get "lost".
 		 * 		b. Allow simultaneous turning and movement. 
 		 */
+	// http://answers.unity3d.com/questions/568423/how-do-i-check-if-raycast-is-hitting-a-gameobject.html
 	void Patrol () {
+		/*
 		if (players.Count > 0) {
 			// TODO Raycast to each Player
 		}
@@ -95,6 +138,9 @@ public class MultiplayerEnemyController : MonoBehaviour {
 			}
 			levels.Add (enemiesOnLevel);
 		}
+		*/
+
+		// destination = new Vector3 (10.4f, 16.25f, -19f);
 
 	}
 
@@ -102,10 +148,147 @@ public class MultiplayerEnemyController : MonoBehaviour {
 	// TODO Once a raycast has lost contact with a player, the player is "lost" again
 	// TODO If no players are located by the Raycast, revert to patrol.
 	void Attack () {
+		destination = FindNearest ().transform.position;
+		tempDestination = destination;
+
+		navigateToDestination ();
+
+		float angle = Vector3.Angle (transform.forward, tempDestination - transform.position);
+		// print (angle);
+		FindRotation (angle);
+		if (angle < 1.0f) {
+			findMovement ();
+		}
+		if (angle < 0.1f) {
+			tankController.Fire ();
+		}
+			
+	}
+
+	void findMovement () {
+		if (Vector3.Distance (transform.position, tempDestination) > 10) {
+			tankController.setMovement (1.0f);
+		}
+	}
+
+	bool navigateToDestination () {
+		// Check directly ahead
+		Vector3 angleToDestination = destination - transform.position;
+		Ray ray = new Ray (transform.position, angleToDestination);
+		// http://answers.unity3d.com/questions/287724/create-ray-with-an-angle.html
+		// Vector3 downAngle = Quaternion.AngleAxis (-45, transform.up) * angleToDestination;
+		int layerMask = LayerMask.GetMask ("Enemies", "Structure");
+		Ray rayDown = new Ray (castingSource.transform.position, Vector3.down);
+		RaycastHit hitInfo;
+
+		print (!Physics.Raycast (ray, out hitInfo, navigationCheckDistance, layerMask) + " , " + Physics.Raycast (rayDown, 2.0f));
+		if ((!Physics.Raycast (ray, out hitInfo, navigationCheckDistance) || hitInfo.collider.gameObject.CompareTag ("Player")) && Physics.Raycast (rayDown, 2.0f)) { // if (nothing in front && there is floor)
+			tempDestination = destination;
+			return true;
+		} else { // There's an obstacle or hole. Need to navigate around it! :D
+			print (hitInfo.collider.gameObject.name);
+			/* int bestAngle = 0;
+			float bestDistanceLeft = 0.0f;
+
+			for (int i = 0; i < 180; i++) {
+				float checkLeft = 0.0f;
+				float checkRight = 0.0f;
+			} */
+			tempDestination = transform.position;
+			return true;
+		}
 
 	}
 
+	void FindRotation (float angle) {
+		
+		float rightAngle = Vector3.Angle (transform.right, tempDestination - transform.position);
+		float leftAngle = Vector3.Angle (-transform.right, tempDestination - transform.position);
+		float turnAmount = 1.0f;
+
+		// Decreases the turn amount when the direction is close to where it's supposed to be
+		if (angle < 1.0f) {
+			turnAmount = 0.1f;
+		} else if (angle < 0.1f) {
+			turnAmount = .01f;
+		}
+
+		// Turns left if left is closer, turns right if right is closer
+		if (angle > 0.01f) {
+			if (rightAngle < leftAngle) {
+				tankController.setRotation (turnAmount);
+			} else {
+				tankController.setRotation (-turnAmount);
+			}
+		}
+	}
+
+	GameObject FindNearest () {
+		GameObject nearest = playersFound [0];
+		for (int i = 1; i < playersFound.Count; i++) {
+			if (Vector3.Distance(transform.position, playersFound[i].transform.position) < Vector3.Distance(transform.position, nearest.transform.position)) {
+				nearest = playersFound[i];
+			}
+		}
+		// print (nearest.name);
+		return nearest;
+	}
+
+	void CheckAlive () {
+		if (!tankController.isAlive) {
+			isAlive = false;
+		}
+	}
+
+	void Respawn () {
+		deathCounter += 1.0f * Time.deltaTime;
+
+		if (deathCounter > delayDeath) {
+			tankMesh.SetActive (false); // TODO find a better way to do this
+			gameObject.GetComponent<Collider> ().enabled = false;
+		} 
+
+		if (deathCounter > respawnTime) {
+			tankMesh.SetActive (true);
+			gameObject.transform.position = startPosition;
+			gameObject.transform.rotation = startRotation;
+			deathCounter = 0.0f;
+			isAlive = true;
+			tankController.isAlive = true;
+			gameObject.GetComponent<Collider> ().enabled = true;
+		}
+	}
+
+	void OnTriggerEnter (Collider other) {
+		if (other.gameObject.CompareTag ("Bottom Plane")) {
+			tankController.Kill();
+		} 
+	}
+
+	void Reset () {
+		transform.position = startPosition;
+		transform.rotation = Quaternion.identity;
+	}
+
+	void LookForPlayers () {
+		for (int i = 0; i < sceneController.players.Count; i++) {
+			Ray ray = new Ray (transform.position, sceneController.players [i].transform.position - transform.position);
+			int layerMask = LayerMask.GetMask ("Players", "Structure");
+			RaycastHit hitInfo;
+			if (Physics.Raycast (ray, out hitInfo, sightDistance, layerMask)) {
+				if (hitInfo.collider.gameObject.Equals (sceneController.players [i])) {
+					playersFound.Add (sceneController.players [i]);
+				} //else {
+					// print ("Players not found");
+				//}
+			} //else {
+				// print ("Players not found");
+			//}
+		}
+	}
+
 	/*
+	 * // TODO get this working... 
 	 void Map () {
 		/* 1. Check if current level is fully explored or not.
 		 * 		a. This is checked in the char[5][100][100] levelDiscovery

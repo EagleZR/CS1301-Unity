@@ -4,6 +4,6 @@ Left: Q
 Right: E
 RLeft: A
 RRight: D
-Jump: LeftAlt
+Action: LeftAlt
 Reset: R
 // Leave this line here. 

@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace AssemblyCSharp
 {
@@ -89,7 +90,9 @@ namespace AssemblyCSharp
 			map [setLevel, setXPos, setYPos] = setData;
 		}
 
-		public 
+		/*public Vector3[] findPath (Vector3 startLocation, Vector3 destination) {
+
+		}*/
 
 		// public char[][] findPath (
 
