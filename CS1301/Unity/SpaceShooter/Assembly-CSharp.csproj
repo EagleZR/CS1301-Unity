@@ -53,16 +53,6 @@
      <Compile Include="Assets\Scripts\PlayerController.cs" />
      <Compile Include="Assets\Scripts\RandomRotator.cs" />
      <Compile Include="Assets\TutorialInfo\Scripts\TutorialInfo.cs" />
-     <Compile Include="Assets\_Completed-Assets\Scripts\Done_BGScroller.cs" />
-     <Compile Include="Assets\_Completed-Assets\Scripts\Done_DestroyByBoundary.cs" />
-     <Compile Include="Assets\_Completed-Assets\Scripts\Done_DestroyByContact.cs" />
-     <Compile Include="Assets\_Completed-Assets\Scripts\Done_DestroyByTime.cs" />
-     <Compile Include="Assets\_Completed-Assets\Scripts\Done_EvasiveManeuver.cs" />
-     <Compile Include="Assets\_Completed-Assets\Scripts\Done_GameController.cs" />
-     <Compile Include="Assets\_Completed-Assets\Scripts\Done_Mover.cs" />
-     <Compile Include="Assets\_Completed-Assets\Scripts\Done_PlayerController.cs" />
-     <Compile Include="Assets\_Completed-Assets\Scripts\Done_RandomRotator.cs" />
-     <Compile Include="Assets\_Completed-Assets\Scripts\Done_WeaponController.cs" />
      <None Include="Assets\TutorialInfo\Fonts\LICENSE.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>G:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

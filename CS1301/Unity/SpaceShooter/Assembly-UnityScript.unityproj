@@ -45,8 +45,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\_Scenes\Release\UnityLoader.js" />
-     <Compile Include="Assets\_Scenes\TemplateData\UnityProgress.js" />
+     <Compile Include="Assets\Builds\Release\UnityLoader.js" />
+     <Compile Include="Assets\Builds\TemplateData\UnityProgress.js" />
      <None Include="Assets\TutorialInfo\Fonts\LICENSE.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>G:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
