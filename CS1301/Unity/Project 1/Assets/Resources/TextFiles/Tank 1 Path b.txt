@@ -1,7 +1,0 @@
-Tank 1 Start
-Tank 1 Waypoint 1
-Tank 1 Waypoint 2
-Tank 1 Waypoint 3
-Tank 1 Waypoint 4
-Tank 1 Waypoint 5b
-Tank 1 End b

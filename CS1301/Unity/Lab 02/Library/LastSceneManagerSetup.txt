@@ -1,4 +1,0 @@
-sceneSetups:
-- path: Assets/Scenes/Lab 02 Scene.unity
-  isLoaded: 1
-  isActive: 1

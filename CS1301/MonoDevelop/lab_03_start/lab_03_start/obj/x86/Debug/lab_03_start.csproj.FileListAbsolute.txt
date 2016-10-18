@@ -1,4 +1,0 @@
-C:\Users\Mark\Documents\GitHub\CS1301-Unity\MonoDevelop\lab_03_start\lab_03_start\bin\Debug\lab_03_start.exe
-C:\Users\Mark\Documents\GitHub\CS1301-Unity\MonoDevelop\lab_03_start\lab_03_start\bin\Debug\lab_03_start.pdb
-C:\Users\Mark\Documents\GitHub\CS1301-Unity\MonoDevelop\lab_03_start\lab_03_start\obj\x86\Debug\lab_03_start.exe
-C:\Users\Mark\Documents\GitHub\CS1301-Unity\MonoDevelop\lab_03_start\lab_03_start\obj\x86\Debug\lab_03_start.pdb
