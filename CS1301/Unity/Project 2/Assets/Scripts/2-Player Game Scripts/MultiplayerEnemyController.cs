@@ -38,10 +38,10 @@ public class MultiplayerEnemyController : MonoBehaviour {
 
 	void Start () {
 		// defaultColor = gameObject.GetComponentInChildren<Material> ();
-		tankController = gameObject.GetComponent<MultiplayerTankController> ();
-		sceneController = scene.GetComponent<MultiplayerSceneController> ();
-		startPosition = gameObject.transform.position;
-		startRotation = gameObject.transform.rotation;
+		this.tankController = gameObject.GetComponent<MultiplayerTankController> ();
+		this.sceneController = scene.GetComponent<MultiplayerSceneController> ();
+		this.startPosition = gameObject.transform.position;
+		this.startRotation = gameObject.transform.rotation;
 		// players = new List<GameObject>(GameObject.FindGameObjectsWithTag ("Player"));
 		// enemies = new List<GameObject>(GameObject.FindGameObjectsWithTag ("Enemy"));
 	}
@@ -52,28 +52,29 @@ public class MultiplayerEnemyController : MonoBehaviour {
 		} else {
 			Respawn ();
 		}
-		CheckLevel ();
+		// CheckLevel ();
 	}
 
+	/*
 	void CheckLevel () {
 		float yPos = gameObject.transform.position.y;
 		if (yPos > 16) {
-			currLevel = 4;
+			this.currLevel = 4;
 		} else if (yPos > 12) {
-			currLevel = 3;
+			this.currLevel = 3;
 		} else if (yPos > 8) {
-			currLevel = 2;
+			this.currLevel = 2;
 		} else if (yPos > 4) {
-			currLevel = 1;
+			this.currLevel = 1;
 		} else {
-			currLevel = 0;
+			this.currLevel = 0;
 		}
 	}
-
+*/
 	void LateUpdate () {
-		if (isAlive) {
+		if (this.isAlive) {
 			LookForPlayers ();
-			if (playersFound.Count == 0) {
+			if (this.playersFound.Count == 0) {
 				Patrol ();
 			} else {
 				Attack ();
@@ -121,72 +122,43 @@ public class MultiplayerEnemyController : MonoBehaviour {
 		 * 			- Do not want an omnipotent pathifinding system, it's ok if the tanks get "lost".
 		 * 		b. Allow simultaneous turning and movement. 
 		 */
-	// http://answers.unity3d.com/questions/568423/how-do-i-check-if-raycast-is-hitting-a-gameobject.html
 	void Patrol () {
-		/*
-		if (players.Count > 0) {
-			// TODO Raycast to each Player
-		}
-
-		// TODO Figure out how the fuck you're doing this...
-		// TODO Check if level is over full
-		ArrayList levels = new ArrayList();
-		for (int u = 0; u < 5; u++) {
-			ArrayList enemiesOnLevel = new ArrayList ();
-			for (int i = 0; i < enemies.Count; i++) {
-				// TODO omg, this is fucked
-			}
-			levels.Add (enemiesOnLevel);
-		}
-		*/
-
-		// destination = new Vector3 (10.4f, 16.25f, -19f);
-
+		// PickDestination ();
+		navigateToDestination ();
+		MoveToDestination ();
 	}
 
-	// TODO Raycasts will be continued to be sent out at both players. Enemy will target closes player within LoS
+	// TODO Raycasts will be continued to be se	nt out at both players. Enemy will target closes player within LoS
 	// TODO Once a raycast has lost contact with a player, the player is "lost" again
 	// TODO If no players are located by the Raycast, revert to patrol.
 	void Attack () {
-		destination = FindNearest ().transform.position;
-		tempDestination = destination;
+		this.destination = FindNearest ().transform.position;
 
 		navigateToDestination ();
 
-		float angle = Vector3.Angle (transform.forward, tempDestination - transform.position);
-		// print (angle);
-		FindRotation (angle);
-		if (angle < 1.0f) {
-			findMovement ();
-		}
-		if (angle < 0.1f) {
-			tankController.Fire ();
-		}
-			
-	}
+		MoveToDestination ();
 
-	void findMovement () {
-		if (Vector3.Distance (transform.position, tempDestination) > 10) {
-			tankController.setMovement (1.0f);
+		if (Vector3.Angle (transform.forward, this.destination - transform.position) < 0.1f) {
+			this.tankController.Fire ();
 		}
 	}
 
 	bool navigateToDestination () {
 		// Check directly ahead
-		Vector3 angleToDestination = destination - transform.position;
+		Vector3 angleToDestination = this.destination - transform.position;
 		Ray ray = new Ray (transform.position, angleToDestination);
 		// http://answers.unity3d.com/questions/287724/create-ray-with-an-angle.html
 		// Vector3 downAngle = Quaternion.AngleAxis (-45, transform.up) * angleToDestination;
 		int layerMask = LayerMask.GetMask ("Enemies", "Structure");
-		Ray rayDown = new Ray (castingSource.transform.position, Vector3.down);
+		Ray rayDown = new Ray (this.castingSource.transform.position, Vector3.down);
 		RaycastHit hitInfo;
 
-		print (!Physics.Raycast (ray, out hitInfo, navigationCheckDistance, layerMask) + " , " + Physics.Raycast (rayDown, 2.0f));
-		if ((!Physics.Raycast (ray, out hitInfo, navigationCheckDistance) || hitInfo.collider.gameObject.CompareTag ("Player")) && Physics.Raycast (rayDown, 2.0f)) { // if (nothing in front && there is floor)
-			tempDestination = destination;
-			return true;
+		// print (!Physics.Raycast (ray, out hitInfo, navigationCheckDistance, layerMask) + " , " + Physics.Raycast (rayDown, 2.0f));
+		if ((!Physics.Raycast (ray, out hitInfo, this.navigationCheckDistance) || hitInfo.collider.gameObject.CompareTag ("Player")) && Physics.Raycast (rayDown, 2.0f)) { // if (nothing in front && there is floor)
+			this.tempDestination = this.destination;
+			return true; // TODO figure out if this is needed
 		} else { // There's an obstacle or hole. Need to navigate around it! :D
-			print (hitInfo.collider.gameObject.name);
+			// print (hitInfo.collider.gameObject.name);
 			/* int bestAngle = 0;
 			float bestDistanceLeft = 0.0f;
 
@@ -194,16 +166,31 @@ public class MultiplayerEnemyController : MonoBehaviour {
 				float checkLeft = 0.0f;
 				float checkRight = 0.0f;
 			} */
-			tempDestination = transform.position;
+			this.tempDestination = transform.position;
 			return true;
 		}
 
 	}
 
+	void MoveToDestination () {
+		float angle = Vector3.Angle (transform.forward, this.tempDestination - transform.position);
+		// print (angle);
+		FindRotation (angle);
+		if (angle < 1.0f) {
+			FindMovement ();
+		}
+	}
+
+	void FindMovement () {
+		if (Vector3.Distance (transform.position, this.tempDestination) > 10) {
+			this.tankController.setMovement (1.0f);
+		}
+	}
+
 	void FindRotation (float angle) {
 		
-		float rightAngle = Vector3.Angle (transform.right, tempDestination - transform.position);
-		float leftAngle = Vector3.Angle (-transform.right, tempDestination - transform.position);
+		float rightAngle = Vector3.Angle (transform.right, this.tempDestination - transform.position);
+		float leftAngle = Vector3.Angle (-transform.right, this.tempDestination - transform.position);
 		float turnAmount = 1.0f;
 
 		// Decreases the turn amount when the direction is close to where it's supposed to be
@@ -216,18 +203,37 @@ public class MultiplayerEnemyController : MonoBehaviour {
 		// Turns left if left is closer, turns right if right is closer
 		if (angle > 0.01f) {
 			if (rightAngle < leftAngle) {
-				tankController.setRotation (turnAmount);
+				this.tankController.setRotation (turnAmount);
 			} else {
-				tankController.setRotation (-turnAmount);
+				this.tankController.setRotation (-turnAmount);
 			}
 		}
 	}
 
+	// http://answers.unity3d.com/questions/568423/how-do-i-check-if-raycast-is-hitting-a-gameobject.html
+	void LookForPlayers () {
+		for (int i = 0; i < sceneController.players.Count; i++) {
+			Ray ray = new Ray (transform.position, this.sceneController.players [i].transform.position - transform.position);
+			int layerMask = LayerMask.GetMask ("Players", "Structure");
+			RaycastHit hitInfo;
+			if (Physics.Raycast (ray, out hitInfo, this.sightDistance, layerMask)) {
+				if (hitInfo.collider.gameObject.Equals (this.sceneController.players [i]) && !this.playersFound.Contains(this.sceneController.players[i])) {
+					this.playersFound.Add (this.sceneController.players [i]);
+				} // else {
+					// print ("Players not found " + hitInfo.collider.name);
+				// }
+			} // else {
+				// print ("Players not found");
+			// }
+		}
+			
+	}
+
 	GameObject FindNearest () {
-		GameObject nearest = playersFound [0];
-		for (int i = 1; i < playersFound.Count; i++) {
-			if (Vector3.Distance(transform.position, playersFound[i].transform.position) < Vector3.Distance(transform.position, nearest.transform.position)) {
-				nearest = playersFound[i];
+		GameObject nearest = this.playersFound [0];
+		for (int i = 1; i < this.playersFound.Count; i++) {
+			if (Vector3.Distance(transform.position, this.playersFound[i].transform.position) < Vector3.Distance(transform.position, nearest.transform.position)) {
+				nearest = this.playersFound[i];
 			}
 		}
 		// print (nearest.name);
@@ -235,56 +241,39 @@ public class MultiplayerEnemyController : MonoBehaviour {
 	}
 
 	void CheckAlive () {
-		if (!tankController.isAlive) {
-			isAlive = false;
+		if (!this.tankController.isAlive) {
+			this.isAlive = false;
 		}
 	}
 
 	void Respawn () {
-		deathCounter += 1.0f * Time.deltaTime;
+		this.deathCounter += 1.0f * Time.deltaTime;
 
 		if (deathCounter > delayDeath) {
-			tankMesh.SetActive (false); // TODO find a better way to do this
+			this.tankMesh.SetActive (false); // TODO find a better way to do this
 			gameObject.GetComponent<Collider> ().enabled = false;
 		} 
 
 		if (deathCounter > respawnTime) {
-			tankMesh.SetActive (true);
-			gameObject.transform.position = startPosition;
-			gameObject.transform.rotation = startRotation;
-			deathCounter = 0.0f;
-			isAlive = true;
-			tankController.isAlive = true;
+			this.tankMesh.SetActive (true);
+			gameObject.transform.position = this.startPosition;
+			gameObject.transform.rotation = this.startRotation;
+			this.deathCounter = 0.0f;
+			this.isAlive = true;
+			this.tankController.isAlive = true;
 			gameObject.GetComponent<Collider> ().enabled = true;
 		}
 	}
 
 	void OnTriggerEnter (Collider other) {
 		if (other.gameObject.CompareTag ("Bottom Plane")) {
-			tankController.Kill();
+			this.tankController.Kill();
 		} 
 	}
 
 	void Reset () {
-		transform.position = startPosition;
+		transform.position = this.startPosition;
 		transform.rotation = Quaternion.identity;
-	}
-
-	void LookForPlayers () {
-		for (int i = 0; i < sceneController.players.Count; i++) {
-			Ray ray = new Ray (transform.position, sceneController.players [i].transform.position - transform.position);
-			int layerMask = LayerMask.GetMask ("Players", "Structure");
-			RaycastHit hitInfo;
-			if (Physics.Raycast (ray, out hitInfo, sightDistance, layerMask)) {
-				if (hitInfo.collider.gameObject.Equals (sceneController.players [i])) {
-					playersFound.Add (sceneController.players [i]);
-				} //else {
-					// print ("Players not found");
-				//}
-			} //else {
-				// print ("Players not found");
-			//}
-		}
 	}
 
 	/*
