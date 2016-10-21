@@ -26,7 +26,7 @@ public class MultiplayerEnemyController : MonoBehaviour {
 	private MultiplayerTankController tankController;
 	private MultiplayerSceneController sceneController;
 
-	private Vector3 tempDestination = new Vector3 (0f, 0f, 0f);
+	public Vector3 tempDestination = new Vector3 (0f, 0f, 0f);
 
 	// private Color defaultColor;
 
@@ -143,7 +143,7 @@ public class MultiplayerEnemyController : MonoBehaviour {
 		}
 	}
 
-	bool navigateToDestination () {
+	void navigateToDestination () {
 		// Check directly ahead
 		Vector3 angleToDestination = this.destination - transform.position;
 		Ray ray = new Ray (transform.position, angleToDestination);
@@ -151,12 +151,13 @@ public class MultiplayerEnemyController : MonoBehaviour {
 		// Vector3 downAngle = Quaternion.AngleAxis (-45, transform.up) * angleToDestination;
 		int layerMask = LayerMask.GetMask ("Enemies", "Structure");
 		Ray rayDown = new Ray (this.castingSource.transform.position, Vector3.down);
+		Ray rayLeft = new Ray (this.castingSource.transform.position, -transform.right);
+		Ray rayRight = new Ray (this.castingSource.transform.position, transform.right);
 		RaycastHit hitInfo;
 
 		// print (!Physics.Raycast (ray, out hitInfo, navigationCheckDistance, layerMask) + " , " + Physics.Raycast (rayDown, 2.0f));
 		if ((!Physics.Raycast (ray, out hitInfo, this.navigationCheckDistance) || hitInfo.collider.gameObject.CompareTag ("Player")) && Physics.Raycast (rayDown, 2.0f)) { // if (nothing in front && there is floor)
 			this.tempDestination = this.destination;
-			return true; // TODO figure out if this is needed
 		} else { // There's an obstacle or hole. Need to navigate around it! :D
 			// print (hitInfo.collider.gameObject.name);
 			/* int bestAngle = 0;
@@ -167,9 +168,18 @@ public class MultiplayerEnemyController : MonoBehaviour {
 				float checkRight = 0.0f;
 			} */
 			this.tempDestination = transform.position;
-			return true;
 		}
 
+		/*
+		if (Physics.Raycast(rayLeft, 2.0f)) {
+			print ("hey!");
+			tempDestination = transform.TransformPoint(castingSource.transform.position + transform.right);
+		}
+
+		if (Physics.Raycast(rayRight, 2.0f)) {
+			tempDestination = transform.TransformPoint(castingSource.transform.position - transform.right);
+		}
+		*/
 	}
 
 	void MoveToDestination () {
