@@ -11,14 +11,20 @@ public class MultiplayerPlayerController : MonoBehaviour {
 
 	public int spawnDelay;
 
+	public bool won = false;
+
+	public GameObject scene;
+
 	private MultiplayerTankController tankController;
+	private MultiplayerSceneController sceneController;
 
 	private double currDelay; // Timing variable for the respawn timer.
 	private bool play = false;
 	private bool end = false;
 
 	private KeyCode[] keys;
-	private int forward, back, left, right, r_left, r_right, action, reset; // Codes for the keys
+
+	private enum Keys : int {Forward = 0, Back, Left, Right, R_Left, R_Right, Action, Reset};
 
 	public TextAsset controls;
 
@@ -26,104 +32,117 @@ public class MultiplayerPlayerController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		tankController = gameObject.GetComponent<MultiplayerTankController> ();
+		this.sceneController = this.scene.GetComponent<MultiplayerSceneController> ();
+		this.tankController = gameObject.GetComponent<MultiplayerTankController> ();
 
-		startPosition = gameObject.transform.position;
+		this.startPosition = gameObject.transform.position;
 
-		winText.text = "You will spawn in:";
-		debugText.text = "";
-		restartText.text = ""; 
+		this.winText.text = "You will spawn in:";
+		this.debugText.text = "";
+		this.restartText.text = ""; 
 
 		// Codes for the keys
-		keys = new KeyCode[8];
-		forward = 0;
-		back = 1;
-		left = 2;
-		right = 3;
-		r_left = 4;
-		r_right = 5;
-		action = 6;
-		reset = 7;
+		this.keys = new KeyCode[8];
+
 		DefineControls ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		// If play is disabled, but it is not the end, this signals that the respawn timer needs to count down.
-		if (!play && !end) {
-			currDelay = currDelay + 1 * Time.deltaTime;
-			int interval = (int)System.Math.Ceiling(spawnDelay - currDelay);
-			countdownText.text = interval.ToString();
-			double int2 = spawnDelay - currDelay;
-			debugText.text = int2.ToString ();
-			if (currDelay >= spawnDelay) {
-				play = true;
-				countdownText.text = "";
-				winText.text = "";
-				debugText.text = "";
+		if (!this.sceneController.isAlive) {
+			EndGame ();
+		} else {
+			// If play is disabled, but it is not the end, this signals that the respawn timer needs to count down.
+			if (!this.play && !this.end) {
+				this.currDelay = this.currDelay + 1 * Time.deltaTime;
+				int interval = (int)System.Math.Ceiling (this.spawnDelay - this.currDelay);
+				this.countdownText.text = interval.ToString ();
+				double int2 = this.spawnDelay - this.currDelay;
+				this.debugText.text = int2.ToString ();
+				if (this.currDelay >= this.spawnDelay) {
+					this.play = true;
+					this.countdownText.text = "";
+					this.winText.text = "";
+					this.debugText.text = "";
+				}
+			}
+
+			// Resets the player. 
+			if (this.end && Input.GetKey (this.keys [(int)Keys.Reset])) {
+				this.end = false;
+				ResetPlayer ();
+				this.restartText.text = "";
+			}
+
+			if (Input.GetKeyDown (this.keys [(int)Keys.Action])) {
+				this.tankController.Fire ();
+				// print ("Fire!");
 			}
 		}
-
-		// Resets the player. 
-		if (end && Input.GetKey (keys[reset])) {
-			end = false;
-			resetPlayer ();
-			restartText.text = "";
-		}
-		if (Input.GetKeyDown (keys [action])) {
-			tankController.Fire ();
-			// print ("Fire!");
-		}
-
 	}
 
 	void FixedUpdate () {
-		if (play) {
+		if (this.play) {
 			// Rotate right
-			if (Input.GetKey (keys[r_right])) {
-				tankController.setRotation (1.0f);
+			if (Input.GetKey (this.keys[(int)Keys.R_Right])) {
+				this.tankController.setRotation (1.0f);
 			}
 			// Rotate Left
-			if (Input.GetKey (keys[r_left])) {
-				tankController.setRotation (-1.0f);
+			if (Input.GetKey (this.keys[(int)Keys.R_Left])) {
+				this.tankController.setRotation (-1.0f);
 			}
 			// Move Forward
-			if (Input.GetKey (keys[forward])) {
-				tankController.setMovement (1.0f);
+			if (Input.GetKey (this.keys[(int)Keys.Forward])) {
+				this.tankController.setMovement (1.0f);
 			}
 			// Move Back
-			if (Input.GetKey (keys[back])) {
-				tankController.setMovement (-1.0f);
+			if (Input.GetKey (this.keys[(int)Keys.Back])) {
+				this.tankController.setMovement (-1.0f);
 			}
 		}
 	}
 
 	void DefineControls() {
-		string controlsText = controls.ToString ();
+		string controlsText = this.controls.ToString ();
 		for (int i = 0; i < 8; i++) {
 			int u = controlsText.IndexOf (':');
 			controlsText = controlsText.Substring (u + 2);
 			u = controlsText.IndexOf ("\n");
 			string key = controlsText.Substring (0, u + 1);
-			keys[i] = (KeyCode)System.Enum.Parse(typeof(KeyCode), key);
+			this.keys[i] = (KeyCode)System.Enum.Parse(typeof(KeyCode), key);
 		}
 	}
 
 	// Resets the player at the start position with a 0 rotation.
 	// Starts the respawn text. 
-	void resetPlayer(){
-		play = false;
-		winText.text = "You will spawn in:";
-		currDelay = 0;
+	void ResetPlayer(){
+		this.play = false;
+		this.winText.text = "You will spawn in:";
+		this.currDelay = 0;
 		// rb.velocity = new Vector3 (0, 0, 0);
-		transform.position = startPosition;
+		transform.position = this.startPosition;
 		transform.rotation = Quaternion.identity;
 	}
 
 	// Trigger to reset player after falling over edge. 
 	void OnTriggerEnter(Collider other) {
 		if (other.gameObject.CompareTag ("Bottom Plane")) {
-			resetPlayer ();
+			ResetPlayer ();
 		} 
+	}
+
+	public void DeclareWinner () {
+		this.won = true;
+		sceneController.DeclareWinner (gameObject);
+		this.winText.text = "You Win!";
+		EndGame ();
+	}
+
+	void EndGame () {
+		if (!won) {
+			this.winText.text = "You Lose";
+		}
+		this.play = false;
+		this.end = true;
 	}
 }
