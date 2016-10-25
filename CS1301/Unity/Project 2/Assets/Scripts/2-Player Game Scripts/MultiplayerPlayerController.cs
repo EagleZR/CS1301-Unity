@@ -145,4 +145,10 @@ public class MultiplayerPlayerController : MonoBehaviour {
 		this.play = false;
 		this.end = true;
 	}
+
+	public void Kill () {
+		this.play = false;
+		this.winText.text = "You've been hit";
+		this.restartText.text = "Please press '" + keys [(int)Keys.Reset].ToString () + "' to reset.";
+	}
 }

@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 public class MultiplayerEnemyController : MonoBehaviour {
 
-	public Vector3 destination = new Vector3 (0f, 0f, 0f);
-	public Vector3 startPosition;
-	public Quaternion startRotation;
+	private Vector3 destination = new Vector3 (0f, 0f, 0f);
+	private Vector3 startPosition;
+	private Quaternion startRotation;
 
 	public GameObject tankMesh;
 	public GameObject scene;
@@ -71,7 +71,8 @@ public class MultiplayerEnemyController : MonoBehaviour {
 	void Attack () {
 		Ray checkSight = new Ray (transform.position, target.transform.position - transform.position);
 		RaycastHit hitInfo;
-		Physics.Raycast (checkSight, out hitInfo, this.sightDistance);
+		int layerMask = LayerMask.GetMask ("Players", "Structure");
+		Physics.Raycast (checkSight, out hitInfo, this.sightDistance, layerMask);
 
 		/*	if (within 10m of target, and there is a clear line of fire) {
 		 * 		if (the angle is pointing at the target) {
@@ -83,15 +84,46 @@ public class MultiplayerEnemyController : MonoBehaviour {
 		 * 		navigate to target
 		 * 	}
 		 */
-		if (Vector3.Distance (transform.position, destination) <= 10.0f && hitInfo.collider == this.target) {
+		if (Vector3.Distance (transform.position, target.transform.position) <= 10.0f && hitInfo.collider.name.Equals(this.target.name)) {
 			navigator.Stop ();
-			if (Vector3.Angle (transform.forward, this.target.transform.position - transform.position) < 0.1f && hitInfo.collider == this.target) {
+			print ("Within range. Stopping.");
+			if (Vector3.Angle (transform.forward, this.target.transform.position - transform.position) < 1.0f && hitInfo.collider.name.Equals(this.target.name)) {
 				this.tankController.Fire ();
+				print ("Firing.");
 			} else {
 				// TODO turn towards target
+				FindRotation ();
 			}
 		} else {
 			navigator.SetDestination (destination);
+		}
+	}
+
+	void FindRotation () {
+		float angle = Vector3.Angle (transform.forward, this.target.transform.position - transform.position);
+
+		float rightAngle = Vector3.Angle (transform.right, this.target.transform.position - transform.position);
+		float leftAngle = Vector3.Angle (-transform.right, this.target.transform.position - transform.position);
+
+		float turnAmount = 1.0f;
+
+		// Decreases the turn amount when the direction is close to where it's supposed to be
+		if (angle < 10.0f) {
+			turnAmount /= 10.0f;
+		} 
+		if (angle < 5.0f) {
+			turnAmount /= 10.0f;
+		}
+
+		print (angle + " , " + turnAmount);
+
+		// Turns left if left is closer, turns right if right is closer
+		if (angle > 0.01f) {
+			if (rightAngle < leftAngle) {
+				this.tankController.setRotation (turnAmount);
+			} else {
+				this.tankController.setRotation (-turnAmount);
+			}
 		}
 	}
 
@@ -99,6 +131,7 @@ public class MultiplayerEnemyController : MonoBehaviour {
 		this.isAlive = this.tankController.isAlive;
 	}
 
+	// TODO take another look at this
 	void Respawn () {
 		this.deathCounter += 1.0f * Time.deltaTime;
 
@@ -115,9 +148,12 @@ public class MultiplayerEnemyController : MonoBehaviour {
 			this.isAlive = true;
 			this.tankController.isAlive = true;
 			gameObject.GetComponent<Collider> ().enabled = true;
+			this.destination = transform.position;
+			this.destination = this.sceneController.GenerateDestination (gameObject);
 		}
 	}
 		
+	// TODO figure out why this isn't working...
 	void LookForPlayers () {
 		// Look for players not found
 		for (int i = 0; i < playersHidden.Count; i++) {
@@ -144,7 +180,7 @@ public class MultiplayerEnemyController : MonoBehaviour {
 			RaycastHit hitInfo;
 
 			if (Physics.Raycast (ray, out hitInfo, this.sightDistance, layerMask)) {
-				if (hitInfo.collider.gameObject.Equals (this.playersFound [i])) {
+				if (!hitInfo.collider.gameObject.Equals (this.playersFound [i])) {
 					// add to hidden list
 					this.playersHidden.Add (this.playersFound [i]);
 					if (this.playersFound [i].Equals(target)) {
@@ -176,9 +212,9 @@ public class MultiplayerEnemyController : MonoBehaviour {
 	}
 
 	void FindDestination () {
-		if (Vector3.Distance (transform.position, this.destination) < 1.0f) {
+		if (Vector3.Distance (transform.position, this.destination) < 5.0f) {
 			this.destination = sceneController.GenerateDestination (gameObject);
-			print (transform.position + " , " + this.destination);
+			// print (transform.position + " , " + this.destination);
 		}
 	}
 

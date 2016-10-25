@@ -31,8 +31,11 @@ public class MultiplayerProjectileController : MonoBehaviour {
 		if (other.gameObject != firingSource) {
 			isAlive = false;
 		}
-		if (other.gameObject.CompareTag("Player")) {
+		if (other.gameObject.CompareTag("Player") && other.gameObject != firingSource && firingSource.name.Contains ("Player")) {
 			firingSource.GetComponent<MultiplayerPlayerController> ().DeclareWinner ();
+		}
+		if (other.gameObject.CompareTag ("Player") && other.gameObject != firingSource && !firingSource.name.Contains ("Player")) {
+			other.gameObject.GetComponent <MultiplayerPlayerController> ().Kill ();
 		}
 	}
 }

@@ -247,8 +247,9 @@ public class MultiplayerSceneController : MonoBehaviour {
 
 		// Find the waypoint furthest away from where everyone is going to
 		float furthestDistance = 0.0f;
-		int waypointFurthestDistance = -1;
+		int waypointFurthestDistance = 0;
 
+		// TODO find bug in this. Sometimes, returns the default, -1
 		for (int i = 0; i < 5; i++) {
 			float sum = 0.0f;
 			for (int u = 0; u < projLevels [newDestinationLevel].Count; u++) {
@@ -265,7 +266,7 @@ public class MultiplayerSceneController : MonoBehaviour {
 	}
 
 	public void DeclareWinner (GameObject winner) {
-		this.centerText.text = winner.name + "won!";
+		this.centerText.text = winner.name + " won!";
 		this.isAlive = false;
 	}
 }
