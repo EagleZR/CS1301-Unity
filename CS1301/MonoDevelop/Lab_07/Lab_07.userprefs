@@ -1,9 +1,9 @@
-﻿<Properties StartupItem="Lab_04\Lab_04.csproj">
+﻿<Properties StartupItem="Lab_07\Lab_07.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Lab_04\Program.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Lab_07\Program.cs">
     <Files>
-      <File FileName="Lab_04\Program.cs" Line="15" Column="11" />
-      <File FileName="Lab_04\Course.cs" Line="8" Column="27" />
+      <File FileName="Lab_07\Program.cs" Line="58" Column="51" />
+      <File FileName="Lab_07\Course.cs" Line="11" Column="10" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

@@ -1,16 +1,14 @@
 ﻿using System;
 
-namespace Lab_04
+namespace Lab_07
 {
 	public class Course
 	{
 
-		public static int hello;
-
 		public string description;
 		public int courseNumber;
 		public int courseHours;
-		string prefix;
+		public string prefix;
 
 		// Empty Constructor
 		public Course ()
@@ -30,14 +28,6 @@ namespace Lab_04
 			} else {
 				return prefix + courseNumber + " \nCourse Hours: " + courseHours + "\nCourse Description: " + description;
 			}
-		}
-
-		public void newMethod () {
-
-		}
-
-		public static void newMethod1 () {
-
 		}
 	}
 }
