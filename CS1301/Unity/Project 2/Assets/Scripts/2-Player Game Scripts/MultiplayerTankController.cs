@@ -26,6 +26,8 @@ public class MultiplayerTankController : MonoBehaviour {
 	public float fireDelay;
 
 	public Rigidbody shell;
+	public GameObject smoke;
+	public GameObject explosion;
 
 	public bool isAlive;
 
@@ -124,6 +126,7 @@ public class MultiplayerTankController : MonoBehaviour {
 	public void Fire () {
 		if (currFireDelay >= fireDelay) {
 			Rigidbody projectile = Instantiate(shell, shellStartLocation.position, shellStartLocation.rotation) as Rigidbody;
+			GameObject smoke = Instantiate (this.smoke, shellStartLocation.position, shellStartLocation.rotation) as GameObject;
 			projectile.velocity = shellStartLocation.forward * projectileSpeed;
 			projectile.GetComponent<MultiplayerProjectileController>().firingSource = gameObject;
 			currFireDelay = 0.0f;
@@ -139,6 +142,7 @@ public class MultiplayerTankController : MonoBehaviour {
 		tankMesh.SetActive (false);
 		rb.isKinematic = true;
 		gameObject.GetComponent<Collider> ().enabled = false;
+		GameObject explosion = Instantiate (this.explosion, transform.position, transform.rotation) as GameObject;
 		#pragma warning disable 0168 // Disable the unused variable warning
 		try {
 			gameObject.GetComponent <MultiplayerPlayerController> ().Kill ();
