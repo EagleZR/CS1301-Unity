@@ -123,10 +123,10 @@ public class MultiplayerEnemyController : MonoBehaviour {
 		float turnAmount = 1.0f;
 
 		// Decreases the turn amount when the direction is close to where it's supposed to be
-		if (angle < 10.0f) {
+		if (angle < 1.0f) {
 			turnAmount /= 10.0f;
 		} 
-		if (angle < 5.0f) {
+		if (angle < 0.1f) {
 			turnAmount /= 10.0f;
 		}
 

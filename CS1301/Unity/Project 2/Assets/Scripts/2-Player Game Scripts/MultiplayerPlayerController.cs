@@ -26,6 +26,7 @@ public class MultiplayerPlayerController : MonoBehaviour {
 	public bool won = false;
 
 	public GameObject scene;
+	public GameObject spawnArea;
 
 	private MultiplayerTankController tankController;
 	private MultiplayerSceneController sceneController;
@@ -129,6 +130,7 @@ public class MultiplayerPlayerController : MonoBehaviour {
 		this.play = false;
 		this.winText.text = "You will spawn in:";
 		this.currDelay = 0;
+		spawnArea.SetActive (true);
 		tankController.Spawn ();
 	}
 
@@ -162,5 +164,11 @@ public class MultiplayerPlayerController : MonoBehaviour {
 		this.end = true;
 		this.winText.text = "You've been hit";
 		this.restartText.text = "Please press '" + keys [(int)Keys.Reset].ToString () + "' to reset.";
+	}
+
+	void OnTriggerExit (Collider other) {
+		if (other.name.Equals ("Start Exit Wall")) {
+			spawnArea.SetActive (false);
+		}
 	}
 }
