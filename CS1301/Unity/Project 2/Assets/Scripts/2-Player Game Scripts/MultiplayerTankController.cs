@@ -7,10 +7,14 @@ public class MultiplayerTankController : MonoBehaviour {
 	public float movementSpeed;
 	public float projectileSpeed;
 	public float fireDelay;
+
 	public Rigidbody shell;
+
 	public bool isAlive;
 
 	public Transform shellStartLocation; 
+
+	public GameObject tankMesh;
 
 	private float moveDirection = 0.0f; // -1.0f indicates full backwards, 1.0f indicates full forwards
 	private float turnDirection = 0.0f; // -1.0f indicates full left, 1.0f indicates full right
@@ -39,13 +43,15 @@ public class MultiplayerTankController : MonoBehaviour {
 	// When the tanks flip upside down or sideways, this turns them upright again
 	void FixRotation () {
 		Quaternion rotation = rb.rotation;
-		if ((rotation.eulerAngles.x > 50 && rotation.eulerAngles.x < 330) || (rotation.eulerAngles.z > 50 && rotation.eulerAngles.z < 330) && !IsFalling()) {
+		if ((rotation.eulerAngles.x > 50 && rotation.eulerAngles.x < 310) || (rotation.eulerAngles.z > 50 && rotation.eulerAngles.z < 310) && !IsFalling ()) {
 			if (flippedTimerCount < flippedTimerMax) {
 				flippedTimerCount += 1.0f * Time.deltaTime;
 			} else {
 				gameObject.transform.rotation = Quaternion.Euler (new Vector3 (0, rotation.y, 0));
 				flippedTimerCount = 0.0f;
 			}
+		} else {
+			flippedTimerCount = 0.0f;
 		}
 	}
 
@@ -107,6 +113,17 @@ public class MultiplayerTankController : MonoBehaviour {
 
 	public void Kill () {
 		isAlive = false;
+		tankMesh.SetActive (false);
+		rb.isKinematic = true;
+		try {
+			gameObject.GetComponent <MultiplayerPlayerController> ().Kill ();
+		} catch (System.NullReferenceException e) {
+		}
+		try {
+			gameObject.GetComponent <MultiplayerEnemyController> ().Kill ();
+		} catch (System.NullReferenceException e) {
+		}
+
 		// gameObject.SetActive (false);
 		// TODO set kinematic to stop all forces
 		// gameObject.GetComponent (Rigidbody)
@@ -115,18 +132,19 @@ public class MultiplayerTankController : MonoBehaviour {
 	public void Spawn () {
 		gameObject.transform.position = startPosition;
 		gameObject.transform.rotation = startRotation;
-		gameObject.SetActive (true);
-		// TODO make not kinematic
+		tankMesh.SetActive (true);
+		rb.isKinematic = false;
 	}
 
+	/*
 	void OnTriggerEnter (Collider collider) {
 		MultiplayerProjectileController script = collider.gameObject.GetComponentInParent<MultiplayerProjectileController> ();
-		if (collider.gameObject.CompareTag ("Projectile") && script.isAlive) {
+		if (collider.gameObject.CompareTag ("Projectile")) {
 			if (script.firingSource != gameObject) {
 				Kill ();
 			}
 		}
-	}
+	} */
 
 	// http://answers.unity3d.com/questions/478240/detect-falling.html
 	bool IsFalling () {

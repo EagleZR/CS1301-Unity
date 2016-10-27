@@ -7,8 +7,6 @@ public class MultiplayerProjectileController : MonoBehaviour {
 
 	public float killTime = 4.0f;
 
-	public bool isAlive = true;
-
 	private float age = 0.0f;
 
 
@@ -29,13 +27,15 @@ public class MultiplayerProjectileController : MonoBehaviour {
 
 	void OnCollisionEnter (Collision other) {
 		if (other.gameObject != firingSource) {
-			isAlive = false;
-		}
-		if (other.gameObject.CompareTag("Player") && other.gameObject != firingSource && firingSource.name.Contains ("Player")) {
-			firingSource.GetComponent<MultiplayerPlayerController> ().DeclareWinner ();
-		}
-		if (other.gameObject.CompareTag ("Player") && other.gameObject != firingSource && !firingSource.name.Contains ("Player")) {
-			other.gameObject.GetComponent <MultiplayerPlayerController> ().Kill ();
+			if (other.gameObject.tag == "Player" || other.gameObject.tag == "Enemy") {
+				other.gameObject.GetComponent <MultiplayerTankController> ().Kill ();
+
+				if (other.gameObject.CompareTag ("Player") && other.gameObject != firingSource && firingSource.name.Contains ("Player")) {
+					firingSource.GetComponent<MultiplayerPlayerController> ().DeclareWinner ();
+				}
+
+				Object.Destroy (gameObject);
+			}
 		}
 	}
 }

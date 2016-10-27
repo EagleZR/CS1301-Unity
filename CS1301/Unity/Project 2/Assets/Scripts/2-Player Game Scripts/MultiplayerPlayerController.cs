@@ -122,6 +122,7 @@ public class MultiplayerPlayerController : MonoBehaviour {
 		// rb.velocity = new Vector3 (0, 0, 0);
 		transform.position = this.startPosition;
 		transform.rotation = Quaternion.identity;
+		tankController.Spawn ();
 	}
 
 	// Trigger to reset player after falling over edge. 
@@ -148,6 +149,7 @@ public class MultiplayerPlayerController : MonoBehaviour {
 
 	public void Kill () {
 		this.play = false;
+		this.end = true;
 		this.winText.text = "You've been hit";
 		this.restartText.text = "Please press '" + keys [(int)Keys.Reset].ToString () + "' to reset.";
 	}

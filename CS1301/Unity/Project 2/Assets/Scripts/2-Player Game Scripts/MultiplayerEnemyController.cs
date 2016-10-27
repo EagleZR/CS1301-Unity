@@ -42,8 +42,6 @@ public class MultiplayerEnemyController : MonoBehaviour {
 
 	void Update () {
 		if (this.isAlive) {
-			CheckAlive ();
-		} else {
 			Respawn ();
 		}
 	}
@@ -86,16 +84,16 @@ public class MultiplayerEnemyController : MonoBehaviour {
 		 */
 		if (Vector3.Distance (transform.position, target.transform.position) <= 10.0f && hitInfo.collider.name.Equals(this.target.name)) {
 			navigator.Stop ();
-			print ("Within range. Stopping.");
 			if (Vector3.Angle (transform.forward, this.target.transform.position - transform.position) < 1.0f && hitInfo.collider.name.Equals(this.target.name)) {
 				this.tankController.Fire ();
-				print ("Firing.");
 			} else {
 				// TODO turn towards target
 				FindRotation ();
 			}
 		} else {
-			navigator.SetDestination (destination);
+			this.destination = this.target.transform.position;
+			navigator.SetDestination (this.destination);
+			navigator.Resume ();
 		}
 	}
 
@@ -114,8 +112,6 @@ public class MultiplayerEnemyController : MonoBehaviour {
 		if (angle < 5.0f) {
 			turnAmount /= 10.0f;
 		}
-
-		print (angle + " , " + turnAmount);
 
 		// Turns left if left is closer, turns right if right is closer
 		if (angle > 0.01f) {
@@ -231,5 +227,9 @@ public class MultiplayerEnemyController : MonoBehaviour {
 
 	public Vector3 GetDestination () {
 		return this.destination;
+	}
+
+	public void Kill () {
+		// Object.Destroy (gameObject);
 	}
 }
