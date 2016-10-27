@@ -27,12 +27,18 @@ public class MultiplayerSceneController : MonoBehaviour {
 	public GameObject keymap;
 	public GameObject enemy;
 
+	public AudioSource sceneAudio;
+	public AudioClip winSong;
+	public AudioClip music;
+
 	public bool isAlive = true;
 
 	private List<GameObject> enemies;
 
 	private float winTextLifetime = 3.0f;
 	private float winTextTimer = 0.0f;
+	private float winSongTimer = 0.0f;
+	private float winSongLength = 2.0f;
 
 	private Vector3 waypoint1 = new Vector3 (0f, 0f, 0f);
 
@@ -91,30 +97,38 @@ public class MultiplayerSceneController : MonoBehaviour {
 		} else if (isAlive && winTextTimer >= winTextLifetime) {
 			centerText.text = "";
 		}
+
+		if (!this.isAlive) {
+			if (this.sceneAudio.clip == this.winSong) {
+				this.winSongTimer += 1.0f * Time.deltaTime;
+				if (this.winSongTimer >= this.winSongLength) {
+					this.sceneAudio.clip = this.music;
+					this.sceneAudio.loop = true;
+					this.sceneAudio.Play ();
+				}
+			}
+		}
 	}
 
 	/* 
 	 * Creates the enemies at the beginning of the game.
 	 */
 	void GenerateEnemies () {
-		enemy.GetComponent<MultiplayerEnemyController> ().scene = gameObject;
+		this.enemy.GetComponent<MultiplayerEnemyController> ().scene = gameObject;
 		for (int i = 0; i < 5; i++) {
-			GameObject newEnemy;
 			if (floorType [i] == 'A') {
-				newEnemy = Instantiate (enemy, new Vector3 (waypoint2A.x, floorHeight [i], waypoint2A.z), Quaternion.identity) as GameObject;
-				newEnemy = Instantiate (enemy, new Vector3 (waypoint3A.x, floorHeight [i], waypoint3A.z), Quaternion.identity) as GameObject;
-				newEnemy = Instantiate (enemy, new Vector3 (waypoint4A.x, floorHeight [i], waypoint4A.z), Quaternion.identity) as GameObject;
-				newEnemy = Instantiate (enemy, new Vector3 (waypoint5A.x, floorHeight [i], waypoint5A.z), Quaternion.identity) as GameObject;
+				Instantiate (this.enemy, new Vector3 (this.waypoint2A.x, this.floorHeight [i], this.waypoint2A.z), Quaternion.identity);
+				Instantiate (this.enemy, new Vector3 (this.waypoint3A.x, this.floorHeight [i], this.waypoint3A.z), Quaternion.identity);
+				Instantiate (this.enemy, new Vector3 (this.waypoint4A.x, this.floorHeight [i], this.waypoint4A.z), Quaternion.identity);
+				Instantiate (this.enemy, new Vector3 (this.waypoint5A.x, this.floorHeight [i], this.waypoint5A.z), Quaternion.identity);
 			} else {
-				newEnemy = Instantiate (enemy, new Vector3 (waypoint2B.x, floorHeight [i], waypoint2B.z), Quaternion.identity) as GameObject;
-				newEnemy = Instantiate (enemy, new Vector3 (waypoint3B.x, floorHeight [i], waypoint3B.z), Quaternion.identity) as GameObject;
-				newEnemy = Instantiate (enemy, new Vector3 (waypoint4B.x, floorHeight [i], waypoint4B.z), Quaternion.identity) as GameObject;
-				newEnemy = Instantiate (enemy, new Vector3 (waypoint5B.x, floorHeight [i], waypoint5B.z), Quaternion.identity) as GameObject;
+				Instantiate (this.enemy, new Vector3 (this.waypoint2B.x, this.floorHeight [i], this.waypoint2B.z), Quaternion.identity);
+				Instantiate (this.enemy, new Vector3 (this.waypoint3B.x, this.floorHeight [i], this.waypoint3B.z), Quaternion.identity);
+				Instantiate (this.enemy, new Vector3 (this.waypoint4B.x, this.floorHeight [i], this.waypoint4B.z), Quaternion.identity);
+				Instantiate (this.enemy, new Vector3 (this.waypoint5B.x, this.floorHeight [i], this.waypoint5B.z), Quaternion.identity);
 			}
-			newEnemy = null;
-			GameObject.Destroy (newEnemy);
 		}
-		enemies = new List<GameObject> (GameObject.FindGameObjectsWithTag ("Enemy"));
+		this.enemies = new List<GameObject> (GameObject.FindGameObjectsWithTag ("Enemy"));
 	}
 
 	/*
@@ -187,7 +201,7 @@ public class MultiplayerSceneController : MonoBehaviour {
 
 			// Add 1 to count for that level
 			if (level >= 0) {
-				projLevels [level].Add (enemies [i]);
+				projLevels [level].Add (this.enemies [i]);
 			}
 		}
 
@@ -255,7 +269,6 @@ public class MultiplayerSceneController : MonoBehaviour {
 		float furthestDistance = 0.0f;
 		int waypointFurthestDistance = 0;
 
-		// TODO find bug in this. Sometimes, returns the default, -1
 		for (int i = 0; i < 5; i++) {
 			float sum = 0.0f;
 			for (int u = 0; u < projLevels [newDestinationLevel].Count; u++) {
@@ -276,6 +289,9 @@ public class MultiplayerSceneController : MonoBehaviour {
 	 */
 	public void DeclareWinner (GameObject winner) {
 		this.centerText.text = winner.name + " won!";
+		this.sceneAudio.clip = this.winSong;
+		this.sceneAudio.loop = false;
+		this.sceneAudio.Play ();
 		this.isAlive = false;
 	}
 }

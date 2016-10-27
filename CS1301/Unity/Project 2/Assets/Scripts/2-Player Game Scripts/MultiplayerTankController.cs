@@ -27,13 +27,18 @@ public class MultiplayerTankController : MonoBehaviour {
 
 	public Rigidbody shell;
 	public GameObject smoke;
-	public GameObject explosion;
 
 	public bool isAlive;
+	public bool movementHandledOutside = false;
+	public bool isMoving = false;
 
 	public Transform shellStartLocation; 
 
 	public GameObject tankMesh;
+
+	public AudioSource tankAudio;
+	public AudioClip engineDriving;
+	public AudioClip engineIdling;
 
 	private float moveDirection = 0.0f; // -1.0f indicates full backwards, 1.0f indicates full forwards
 	private float turnDirection = 0.0f; // -1.0f indicates full left, 1.0f indicates full right
@@ -46,10 +51,13 @@ public class MultiplayerTankController : MonoBehaviour {
 	private Rigidbody rb;
 
 	void Start () {
-		isAlive = true;
-		startPosition = gameObject.transform.position;
-		startRotation = gameObject.transform.rotation;
-		rb = gameObject.GetComponent <Rigidbody> ();
+		this.tankAudio.clip = this.engineIdling;
+		this.tankAudio.pitch = Random.Range (this.tankAudio.pitch - 2.0f, this.tankAudio.pitch + 2.0f);
+		this.tankAudio.Play ();
+		this.isAlive = true;
+		this.startPosition = gameObject.transform.position;
+		this.startRotation = gameObject.transform.rotation;
+		this.rb = gameObject.GetComponent <Rigidbody> ();
 	}
 
 	void Update () {
@@ -57,25 +65,26 @@ public class MultiplayerTankController : MonoBehaviour {
 	}
 
 	void LateUpdate() {
-		currFireDelay += 1 * Time.deltaTime;
+		this.currFireDelay += 1 * Time.deltaTime;
 		Move ();
 		Turn ();
+		Audio ();
 	}
 
 	/*
 	 * When the tanks flip upside down or sideways, this turns them upright again
 	 */
 	void FixRotation () {
-		Quaternion rotation = rb.rotation;
+		Quaternion rotation = this.rb.rotation;
 		if ((Mathf.Abs(rotation.eulerAngles.x) > 50 && Mathf.Abs(rotation.eulerAngles.x) < 310) || (Mathf.Abs(rotation.eulerAngles.z) > 50 && Mathf.Abs(rotation.eulerAngles.z) < 310) && !IsFalling ()) {
-			if (flippedTimerCount < flippedTimerMax) {
-				flippedTimerCount += 1.0f * Time.deltaTime;
+			if (this.flippedTimerCount < this.flippedTimerMax) {
+				this.flippedTimerCount += 1.0f * Time.deltaTime;
 			} else {
 				gameObject.transform.rotation = Quaternion.Euler (new Vector3 (0, rotation.y, 0));
-				flippedTimerCount = 0.0f;
+				this.flippedTimerCount = 0.0f;
 			}
 		} else {
-			flippedTimerCount = 0.0f;
+			this.flippedTimerCount = 0.0f;
 		}
 	}
 
@@ -86,7 +95,7 @@ public class MultiplayerTankController : MonoBehaviour {
 	 * move next time LateUpdate() moves the object.
 	 */
 	public void setMovement (float movement) {
-		moveDirection = movement;
+		this.moveDirection = movement;
 	}
 
 	/*
@@ -96,40 +105,66 @@ public class MultiplayerTankController : MonoBehaviour {
 	 * rotate next time LateUpdate() rotates the object.
 	 */
 	public void setRotation (float rotation) {
-		turnDirection = rotation;
+		this.turnDirection = rotation;
 	}
 
 	/*
 	 * Moves the object
 	 */
 	void Move () {
-		Vector3 movement = new Vector3 (0, 0, moveDirection) * Time.deltaTime * movementSpeed;
+		if (Mathf.Abs (this.moveDirection) == 0 && !this.movementHandledOutside) {
+			this.isMoving = false;
+		} else if (!this.movementHandledOutside) {
+			this.isMoving = true;
+		}
+		Vector3 movement = new Vector3 (0, 0, this.moveDirection) * Time.deltaTime * this.movementSpeed;
 		gameObject.transform.Translate (movement);
-		moveDirection = 0;
+		this.moveDirection = 0;
 	}
 
 	/*
 	 * Turns the object
 	 */
 	void Turn () {
+		if (Mathf.Abs (this.turnDirection) == 0 && !this.movementHandledOutside) {
+			this.isMoving = false;
+		} else if (!this.movementHandledOutside) {
+			this.isMoving = true;
+		}
 		Vector3 currRotation = gameObject.transform.rotation.eulerAngles;
-		currRotation += (new Vector3 (0, turnDirection, 0) * Time.deltaTime * turnSpeed);
+		currRotation += (new Vector3 (0, this.turnDirection, 0) * Time.deltaTime * this.turnSpeed);
 		Quaternion rotation = Quaternion.Euler (currRotation);
-		// rb.MoveRotation (rotation);
 		gameObject.transform.rotation = rotation;
-		turnDirection = 0.0f;
+		this.turnDirection = 0.0f;
+	}
+
+	/*
+	 * Controls the engine's audio output based on movement.
+	 */
+	void Audio () {
+		if (!this.isMoving) {
+			if (this.tankAudio.clip == this.engineDriving) {
+				this.tankAudio.clip = this.engineIdling;
+				this.tankAudio.Play ();
+			}
+		} else {
+			if (this.tankAudio.clip == this.engineIdling) {
+				this.tankAudio.clip = this.engineDriving;
+				this.tankAudio.Play ();
+			}
+		}
 	}
 
 	/*
 	 * Creates, then "fires" a new projectile
 	 */
 	public void Fire () {
-		if (currFireDelay >= fireDelay) {
-			Rigidbody projectile = Instantiate(shell, shellStartLocation.position, shellStartLocation.rotation) as Rigidbody;
-			GameObject smoke = Instantiate (this.smoke, shellStartLocation.position, shellStartLocation.rotation) as GameObject;
-			projectile.velocity = shellStartLocation.forward * projectileSpeed;
+		if (this.currFireDelay >= this.fireDelay) {
+			Rigidbody projectile = Instantiate(this.shell, this.shellStartLocation.position, this.shellStartLocation.rotation) as Rigidbody;
+			Instantiate (this.smoke, this.shellStartLocation.position, this.shellStartLocation.rotation);
+			projectile.velocity = this.shellStartLocation.forward * this.projectileSpeed;
 			projectile.GetComponent<MultiplayerProjectileController>().firingSource = gameObject;
-			currFireDelay = 0.0f;
+			this.currFireDelay = 0.0f;
 		} 
 	}
 
@@ -138,11 +173,10 @@ public class MultiplayerTankController : MonoBehaviour {
 	 * that they're dead
 	 */
 	public void Kill () {
-		isAlive = false;
-		tankMesh.SetActive (false);
-		rb.isKinematic = true;
+		this.isAlive = false;
+		this.tankMesh.SetActive (false);
+		this.rb.isKinematic = true;
 		gameObject.GetComponent<Collider> ().enabled = false;
-		GameObject explosion = Instantiate (this.explosion, transform.position, transform.rotation) as GameObject;
 		#pragma warning disable 0168 // Disable the unused variable warning
 		try {
 			gameObject.GetComponent <MultiplayerPlayerController> ().Kill ();
@@ -160,10 +194,10 @@ public class MultiplayerTankController : MonoBehaviour {
 	 * enemy scripts. 
 	 */
 	public void Spawn () {
-		gameObject.transform.position = startPosition;
-		gameObject.transform.rotation = startRotation;
-		tankMesh.SetActive (true);
-		rb.isKinematic = false;
+		gameObject.transform.position = this.startPosition;
+		gameObject.transform.rotation = this.startRotation;
+		this.tankMesh.SetActive (true);
+		this.rb.isKinematic = false;
 		gameObject.GetComponent<Collider> ().enabled = true;
 	}
 

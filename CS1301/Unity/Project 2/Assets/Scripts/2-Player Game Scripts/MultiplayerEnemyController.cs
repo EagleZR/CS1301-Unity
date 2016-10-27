@@ -41,7 +41,8 @@ public class MultiplayerEnemyController : MonoBehaviour {
 
 	void Start () {
 		this.tankController = gameObject.GetComponent<MultiplayerTankController> ();
-		this.sceneController = scene.GetComponent<MultiplayerSceneController> ();
+		this.tankController.movementHandledOutside = true;
+		this.sceneController = this.scene.GetComponent<MultiplayerSceneController> ();
 		this.playersHidden = new List<GameObject> (GameObject.FindGameObjectsWithTag ("Player"));
 		this.navigator = gameObject.GetComponent<NavMeshAgent> ();
 
@@ -49,23 +50,30 @@ public class MultiplayerEnemyController : MonoBehaviour {
 	}
 
 	void Update () {
-		if (!this.isAlive) {
-			Respawn ();
+		if (this.sceneController.isAlive) {
+			if (!this.isAlive) {
+				Respawn ();
+			}
 		}
 	}
 
 	void LateUpdate () {
-		if (this.isAlive) {
-			LookForPlayers ();
-			if (this.playersFound.Count == 0) { // If no players are found
-				this.status = "Patrol";
-				Patrol ();
-			} else {
-				this.status = "Attack";
-				Attack ();
+		if (this.sceneController.isAlive) {
+			if (this.isAlive) {
+				LookForPlayers ();
+				if (this.playersFound.Count == 0) { // If no players are found
+					this.status = "Patrol";
+					Patrol ();
+				} else {
+					this.status = "Attack";
+					Attack ();
+				}
+			} else { // If dead
+				this.navigator.Stop ();
+				this.tankController.isMoving = false;
 			}
-		} else { // If dead
-			navigator.Stop ();
+		} else {
+			this.navigator.Stop ();
 		}
 	}
 
@@ -73,15 +81,16 @@ public class MultiplayerEnemyController : MonoBehaviour {
 	 * When there are no players found, this just moves the tank.
 	 */
 	void Patrol () {
+		this.tankController.movementHandledOutside = true;
 		FindDestination ();
-		navigator.SetDestination(destination);
+		this.navigator.SetDestination(this.destination);
 	}
 		
 	/* 
 	 * Moves the tank towards the target. Once within range, it stops moving, rotates toward the target, and fires.
 	 */
 	void Attack () {
-		Ray checkSight = new Ray (transform.position, target.transform.position - transform.position);
+		Ray checkSight = new Ray (transform.position, this.target.transform.position - transform.position);
 		RaycastHit hitInfo;
 		int layerMask = LayerMask.GetMask ("Players", "Structure");
 		Physics.Raycast (checkSight, out hitInfo, this.sightDistance, layerMask);
@@ -98,7 +107,8 @@ public class MultiplayerEnemyController : MonoBehaviour {
 		 * 	}
 		 */
 		if (Vector3.Distance (transform.position, target.transform.position) <= 10.0f && hitInfo.collider.name.Equals(this.target.name)) {
-			navigator.Stop ();
+			this.navigator.Stop ();
+			this.tankController.movementHandledOutside = false;
 			if (Vector3.Angle (transform.forward, this.target.transform.position - transform.position) < 1.0f && hitInfo.collider.name.Equals(this.target.name)) {
 				this.tankController.Fire ();
 			} else {
@@ -106,8 +116,9 @@ public class MultiplayerEnemyController : MonoBehaviour {
 			}
 		} else {
 			this.destination = this.target.transform.position;
-			navigator.SetDestination (this.destination);
-			navigator.Resume ();
+			this.navigator.SetDestination (this.destination);
+			this.navigator.Resume ();
+			this.tankController.isMoving = true;
 		}
 	}
 
@@ -146,9 +157,9 @@ public class MultiplayerEnemyController : MonoBehaviour {
 	void Respawn () {
 		this.deathCounter += 1.0f * Time.deltaTime;
 
-		if (deathCounter > respawnTime) {
-			tankController.Spawn ();
-			navigator.Resume ();
+		if (this.deathCounter > this.respawnTime) {
+			this.tankController.Spawn ();
+			this.navigator.Resume ();
 			this.deathCounter = 0.0f;
 			this.isAlive = true;
 			this.destination = transform.position;
@@ -162,7 +173,7 @@ public class MultiplayerEnemyController : MonoBehaviour {
 	 */
 	void LookForPlayers () {
 		// Look for players not found
-		for (int i = 0; i < playersHidden.Count; i++) {
+		for (int i = 0; i < this.playersHidden.Count; i++) {
 			Ray ray = new Ray (transform.position, this.playersHidden [i].transform.position - transform.position);
 			int layerMask = LayerMask.GetMask ("Players", "Structure");
 			RaycastHit hitInfo;
@@ -180,7 +191,7 @@ public class MultiplayerEnemyController : MonoBehaviour {
 		}
 
 		// Look for players already found (in case they disappear)
-		for (int i = 0; i < playersFound.Count; i++) {
+		for (int i = 0; i < this.playersFound.Count; i++) {
 			Ray ray = new Ray (transform.position, this.playersFound [i].transform.position - transform.position);
 			int layerMask = LayerMask.GetMask ("Players", "Structure");
 			RaycastHit hitInfo;
@@ -197,9 +208,9 @@ public class MultiplayerEnemyController : MonoBehaviour {
 					 * simply going around a wall, or down a level.
 					 */
 					if (this.playersFound [i].Equals(target)) {
-						navigator.Resume ();
-						destination = target.transform.position; // may not be necessary, but maybe... 
-						target = null;
+						this.navigator.Resume ();
+						this.destination = target.transform.position; // may not be necessary, but maybe... 
+						this.target = null;
 					}
 
 					// remove from found list
@@ -239,7 +250,7 @@ public class MultiplayerEnemyController : MonoBehaviour {
 	 */
 	void FindDestination () {
 		if (Vector3.Distance (transform.position, this.destination) < 5.0f) {
-			this.destination = sceneController.GenerateDestination (gameObject);
+			this.destination = this.sceneController.GenerateDestination (gameObject);
 		}
 	}
 

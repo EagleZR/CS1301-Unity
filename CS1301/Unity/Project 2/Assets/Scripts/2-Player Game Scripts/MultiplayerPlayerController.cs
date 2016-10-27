@@ -58,6 +58,7 @@ public class MultiplayerPlayerController : MonoBehaviour {
 	void Update () {
 		if (!this.sceneController.isAlive) {
 			EndGame ();
+			this.restartText.text = "Please press '1' (above letters) to reset.";
 		} else {
 			// If play is disabled, but it is not the end, this signals that the respawn timer needs to count down.
 			if (!this.play && !this.end) {
@@ -162,8 +163,12 @@ public class MultiplayerPlayerController : MonoBehaviour {
 	public void Kill () {
 		this.play = false;
 		this.end = true;
-		this.winText.text = "You've been hit";
-		this.restartText.text = "Please press '" + keys [(int)Keys.Reset].ToString () + "' to reset.";
+		if (this.sceneController.isAlive) {
+			this.winText.text = "You've been hit!";
+			this.restartText.text = "Please press '" + keys [(int)Keys.Reset].ToString () + "' to reset.";
+		} else {
+			this.restartText.text = "Please press '" + KeyCode.Alpha1.ToString () + "' to reset.";
+		}
 	}
 
 	void OnTriggerExit (Collider other) {

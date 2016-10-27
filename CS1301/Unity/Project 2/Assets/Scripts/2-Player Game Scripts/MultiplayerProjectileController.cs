@@ -14,6 +14,7 @@ using UnityEngine;
 public class MultiplayerProjectileController : MonoBehaviour {
 
 	public GameObject firingSource;
+	public GameObject explosion;
 
 	public float killTime = 4.0f;
 
@@ -36,6 +37,7 @@ public class MultiplayerProjectileController : MonoBehaviour {
 		if (other.gameObject != firingSource) { // Had some issues where it would hit the collider on its way out.
 			if (other.gameObject.tag == "Player" || other.gameObject.tag == "Enemy") { 
 				other.gameObject.GetComponent <MultiplayerTankController> ().Kill (); 
+				Instantiate (this.explosion, transform.position, transform.rotation);
 
 				if (other.gameObject.CompareTag ("Player") && other.gameObject != firingSource && firingSource.name.Contains ("Player")) { // This triggers the end-game stuff
 					firingSource.GetComponent<MultiplayerPlayerController> ().DeclareWinner ();
