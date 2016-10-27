@@ -1,7 +1,21 @@
-﻿using UnityEngine;
+﻿/* Author: Mark Zeagler
+ * Class: CS 1301
+ * Instructor: Mona Chavoshi
+ * Project: Game 2
+ * 
+ * Handles the scene. At the start, it creates all of the enemy tanks, and tells them
+ * where to go. It also handles the end game, quitting the game, and restarting the 
+ * game. 
+ * 
+ * Originally, when the enemy tanks were going to use their own navigation controllers,
+ * this was going to have the tanks move in mapping patterns until they learned the map,
+ * then use that for a more coordinated control of the enemies when a player was found
+ * on a certain layer, but that was just too much.
+ */
+
+using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using System.Collections;
 using System.Collections.Generic;
 
 public class MultiplayerSceneController : MonoBehaviour {
@@ -15,7 +29,6 @@ public class MultiplayerSceneController : MonoBehaviour {
 
 	public bool isAlive = true;
 
-	private List<GameObject> players;
 	private List<GameObject> enemies;
 
 	private float winTextLifetime = 3.0f;
@@ -42,22 +55,18 @@ public class MultiplayerSceneController : MonoBehaviour {
 
 	private bool keymapOn = true; // Used to toggle the keymap image on/off.
 
-	// Use this for initialization
 	void Start () {
-		players = GetPlayers();
 		GenerateEnemies ();
 		centerText.text = "Defeat the other player to win!";
 		newGameText.text = "";
 	}
-	
-	// Update is called once per frame
+
 	void Update () {
 		// Quits the game (usually). 
 		if (Input.GetKey (KeyCode.Escape)) {
 			Application.Quit ();
 		}
 			
-
 		// Toggles the keymap on/off. 
 		if (Input.GetKeyDown (KeyCode.F1)) {
 			if (keymapOn) {
@@ -71,10 +80,12 @@ public class MultiplayerSceneController : MonoBehaviour {
 			}
 		}
 
+		// Reloads the game if one of the players has already won
 		if(!this.isAlive && Input.GetKeyDown (KeyCode.Alpha1)) {
 			UnityEngine.SceneManagement.SceneManager.LoadScene ("Multiplayer Scene", UnityEngine.SceneManagement.LoadSceneMode.Single);
 		}
 
+		// At the beginning of the game, hides the center instructions after a certain amount of time
 		if (winTextTimer < winTextLifetime) {
 			winTextTimer += 1 * Time.deltaTime;
 		} else if (isAlive && winTextTimer >= winTextLifetime) {
@@ -82,38 +93,33 @@ public class MultiplayerSceneController : MonoBehaviour {
 		}
 	}
 
-	public List<GameObject> GetPlayers () {
-		return new List<GameObject> (GameObject.FindGameObjectsWithTag ("Player"));
-	}
-
+	/* 
+	 * Creates the enemies at the beginning of the game.
+	 */
 	void GenerateEnemies () {
 		enemy.GetComponent<MultiplayerEnemyController> ().scene = gameObject;
 		for (int i = 0; i < 5; i++) {
-			Vector3 startPosition;
+			GameObject newEnemy;
 			if (floorType [i] == 'A') {
-				GameObject enemy1 = Instantiate (enemy, new Vector3 (waypoint2A.x, floorHeight [i], waypoint2A.z), Quaternion.identity) as GameObject;
-				// enemy1.GetComponent<MultiplayerEnemyController> ().scene = gameObject;
-				GameObject enemy2 = Instantiate (enemy, new Vector3 (waypoint3A.x, floorHeight [i], waypoint3A.z), Quaternion.identity) as GameObject;
-				// enemy2.GetComponent<MultiplayerEnemyController> ().scene = gameObject;
-				GameObject enemy3 = Instantiate (enemy, new Vector3 (waypoint4A.x, floorHeight [i], waypoint4A.z), Quaternion.identity) as GameObject;
-				// enemy3.GetComponent<MultiplayerEnemyController> ().scene = gameObject;
-				GameObject enemy4 = Instantiate (enemy, new Vector3 (waypoint5A.x, floorHeight [i], waypoint5A.z), Quaternion.identity) as GameObject;
-				// enemy4.GetComponent<MultiplayerEnemyController> ().scene = gameObject;
+				newEnemy = Instantiate (enemy, new Vector3 (waypoint2A.x, floorHeight [i], waypoint2A.z), Quaternion.identity) as GameObject;
+				newEnemy = Instantiate (enemy, new Vector3 (waypoint3A.x, floorHeight [i], waypoint3A.z), Quaternion.identity) as GameObject;
+				newEnemy = Instantiate (enemy, new Vector3 (waypoint4A.x, floorHeight [i], waypoint4A.z), Quaternion.identity) as GameObject;
+				newEnemy = Instantiate (enemy, new Vector3 (waypoint5A.x, floorHeight [i], waypoint5A.z), Quaternion.identity) as GameObject;
 			} else {
-				GameObject enemy1 = Instantiate (enemy, new Vector3 (waypoint2B.x, floorHeight [i], waypoint2B.z), Quaternion.identity) as GameObject;
-				// enemy1.GetComponent<MultiplayerEnemyController> ().scene = gameObject;
-				GameObject enemy2 = Instantiate (enemy, new Vector3 (waypoint3B.x, floorHeight [i], waypoint3B.z), Quaternion.identity) as GameObject;
-				// enemy2.GetComponent<MultiplayerEnemyController> ().scene = gameObject;
-				GameObject enemy3 = Instantiate (enemy, new Vector3 (waypoint4B.x, floorHeight [i], waypoint4B.z), Quaternion.identity) as GameObject;
-				// enemy3.GetComponent<MultiplayerEnemyController> ().scene = gameObject;
-				GameObject enemy4 = Instantiate (enemy, new Vector3 (waypoint5B.x, floorHeight [i], waypoint5B.z), Quaternion.identity) as GameObject;
-				// enemy4.GetComponent<MultiplayerEnemyController> ().scene = gameObject;
+				newEnemy = Instantiate (enemy, new Vector3 (waypoint2B.x, floorHeight [i], waypoint2B.z), Quaternion.identity) as GameObject;
+				newEnemy = Instantiate (enemy, new Vector3 (waypoint3B.x, floorHeight [i], waypoint3B.z), Quaternion.identity) as GameObject;
+				newEnemy = Instantiate (enemy, new Vector3 (waypoint4B.x, floorHeight [i], waypoint4B.z), Quaternion.identity) as GameObject;
+				newEnemy = Instantiate (enemy, new Vector3 (waypoint5B.x, floorHeight [i], waypoint5B.z), Quaternion.identity) as GameObject;
 			}
+			newEnemy = null;
+			GameObject.Destroy (newEnemy);
 		}
 		enemies = new List<GameObject> (GameObject.FindGameObjectsWithTag ("Enemy"));
 	}
 
-	// Generates a new destination for a requesting Enemy
+	/*
+	 * Generates a new destination for a requesting Enemy
+	 */
 	public Vector3 GenerateDestination (GameObject requester) {
 		
 		List<GameObject>[] currLevels = new List<GameObject>[5];
@@ -265,6 +271,9 @@ public class MultiplayerSceneController : MonoBehaviour {
 		return floorWaypoint [waypointFurthestDistance];
 	}
 
+	/*
+	 * Ends the game when there is a winner.
+	 */
 	public void DeclareWinner (GameObject winner) {
 		this.centerText.text = winner.name + " won!";
 		this.isAlive = false;

@@ -1,4 +1,16 @@
-﻿using UnityEngine;
+﻿/* Author: Mark Zeagler
+ * Class: CS 1301
+ * Instructor: Mona Chavoshi
+ * Project: Game 2
+ * 
+ * This script handles user input, and passes that to the MultiplayerTankController.cs script.
+ * Inputs can be customized using the text files in the Assets/Resources/Text Files/ folder,
+ * but the keyboard-layout UI image would have to be adjusted manually. I thought about
+ * handling the sprite placements with this script, but I didn't really feel like it yet.
+ * Maybe a later version will have it. 
+ */
+
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
@@ -19,8 +31,8 @@ public class MultiplayerPlayerController : MonoBehaviour {
 	private MultiplayerSceneController sceneController;
 
 	private double currDelay; // Timing variable for the respawn timer.
-	private bool play = false;
-	private bool end = false;
+	private bool play = false; // If false, player cannot move. 
+	private bool end = false; // If true, player prompted to respawn. 
 
 	private KeyCode[] keys;
 
@@ -28,14 +40,9 @@ public class MultiplayerPlayerController : MonoBehaviour {
 
 	public TextAsset controls;
 
-	private Vector3 startPosition;
-
-	// Use this for initialization
 	void Start () {
 		this.sceneController = this.scene.GetComponent<MultiplayerSceneController> ();
 		this.tankController = gameObject.GetComponent<MultiplayerTankController> ();
-
-		this.startPosition = gameObject.transform.position;
 
 		this.winText.text = "You will spawn in:";
 		this.debugText.text = "";
@@ -46,8 +53,7 @@ public class MultiplayerPlayerController : MonoBehaviour {
 
 		DefineControls ();
 	}
-	
-	// Update is called once per frame
+
 	void Update () {
 		if (!this.sceneController.isAlive) {
 			EndGame ();
@@ -73,15 +79,10 @@ public class MultiplayerPlayerController : MonoBehaviour {
 				ResetPlayer ();
 				this.restartText.text = "";
 			}
-
-			if (Input.GetKeyDown (this.keys [(int)Keys.Action])) {
-				this.tankController.Fire ();
-				// print ("Fire!");
-			}
 		}
 	}
 
-	void FixedUpdate () {
+	void LateUpdate () {
 		if (this.play) {
 			// Rotate right
 			if (Input.GetKey (this.keys[(int)Keys.R_Right])) {
@@ -99,9 +100,16 @@ public class MultiplayerPlayerController : MonoBehaviour {
 			if (Input.GetKey (this.keys[(int)Keys.Back])) {
 				this.tankController.setMovement (-1.0f);
 			}
+			// Fire's tank weapon
+			if (Input.GetKeyDown (this.keys [(int)Keys.Action])) {
+				this.tankController.Fire ();
+			}
 		}
 	}
 
+	/*
+	 * Sets the controls based off of the given text file
+	 */
 	void DefineControls() {
 		string controlsText = this.controls.ToString ();
 		for (int i = 0; i < 8; i++) {
@@ -113,25 +121,20 @@ public class MultiplayerPlayerController : MonoBehaviour {
 		}
 	}
 
-	// Resets the player at the start position with a 0 rotation.
-	// Starts the respawn text. 
+	/*
+	 * Resets the player at the start position with a 0 rotation.
+	 * Starts the respawn text. 
+	 */
 	void ResetPlayer(){
 		this.play = false;
 		this.winText.text = "You will spawn in:";
 		this.currDelay = 0;
-		// rb.velocity = new Vector3 (0, 0, 0);
-		transform.position = this.startPosition;
-		transform.rotation = Quaternion.identity;
 		tankController.Spawn ();
 	}
 
-	// Trigger to reset player after falling over edge. 
-	void OnTriggerEnter(Collider other) {
-		if (other.gameObject.CompareTag ("Bottom Plane")) {
-			ResetPlayer ();
-		} 
-	}
-
+	/*
+	 * Called by the projectile. Triggers the scene's end game stuff
+	 */
 	public void DeclareWinner () {
 		this.won = true;
 		sceneController.DeclareWinner (gameObject);
@@ -139,6 +142,10 @@ public class MultiplayerPlayerController : MonoBehaviour {
 		EndGame ();
 	}
 
+	/*
+	 * Called by the scene script. If the script was not already
+	 * notified that it was the winner, this will trigger the lose stuff
+	 */
 	void EndGame () {
 		if (!won) {
 			this.winText.text = "You Lose";
@@ -147,6 +154,9 @@ public class MultiplayerPlayerController : MonoBehaviour {
 		this.end = true;
 	}
 
+	/*
+	 * Called by the tank controller when killed. This prompts for a respawn.
+	 */
 	public void Kill () {
 		this.play = false;
 		this.end = true;

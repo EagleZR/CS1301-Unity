@@ -1,4 +1,21 @@
-﻿using UnityEngine;
+﻿/* Author: Mark Zeagler
+ * Class: CS 1301
+ * Instructor: Mona Chavoshi
+ * Project: Game 2
+ *
+ * This class handles the basic commands for the tank objects. The specific behaviors are listed below. 
+ * - Tank Movement 
+ * - Tank Firing 
+ * - Tank Death
+ * - Tank Respawn
+ * - Tank Roll Reset 
+ * 
+ * Each of these behaviors are handled called by a separate script, depending on the type of GameObject it is attached to. 
+ * This is a consolidation of those behaviors into a single script to ensure that the Players and Enemies are basically 
+ * using the same kind of tanks, but with different forms of input and control. 
+ */
+
+using UnityEngine;
 using System.Collections;
 
 public class MultiplayerTankController : MonoBehaviour {
@@ -26,24 +43,29 @@ public class MultiplayerTankController : MonoBehaviour {
 	private Quaternion startRotation; 
 	private Rigidbody rb;
 
-	// Use this for initialization
 	void Start () {
 		isAlive = true;
 		startPosition = gameObject.transform.position;
 		startRotation = gameObject.transform.rotation;
 		rb = gameObject.GetComponent <Rigidbody> ();
-		// Vector3 projectileVelocity 
 	}
-	
-	// Update is called once per frame
+
 	void Update () {
 		FixRotation();
 	}
 
-	// When the tanks flip upside down or sideways, this turns them upright again
+	void LateUpdate() {
+		currFireDelay += 1 * Time.deltaTime;
+		Move ();
+		Turn ();
+	}
+
+	/*
+	 * When the tanks flip upside down or sideways, this turns them upright again
+	 */
 	void FixRotation () {
 		Quaternion rotation = rb.rotation;
-		if ((rotation.eulerAngles.x > 50 && rotation.eulerAngles.x < 310) || (rotation.eulerAngles.z > 50 && rotation.eulerAngles.z < 310) && !IsFalling ()) {
+		if ((Mathf.Abs(rotation.eulerAngles.x) > 50 && Mathf.Abs(rotation.eulerAngles.x) < 310) || (Mathf.Abs(rotation.eulerAngles.z) > 50 && Mathf.Abs(rotation.eulerAngles.z) < 310) && !IsFalling ()) {
 			if (flippedTimerCount < flippedTimerMax) {
 				flippedTimerCount += 1.0f * Time.deltaTime;
 			} else {
@@ -55,41 +77,38 @@ public class MultiplayerTankController : MonoBehaviour {
 		}
 	}
 
-	void LateUpdate() {
-		currFireDelay += 1 * Time.deltaTime;
-		Move ();
-		Turn ();
-	}
-
+	/*
+	 * Called by another script to set the movement.
+	 * NOTE: Setting the movement will not immediately 
+	 * move the object, but will tell this script how to
+	 * move next time LateUpdate() moves the object.
+	 */
 	public void setMovement (float movement) {
 		moveDirection = movement;
 	}
 
+	/*
+	 * Called by another script to set the rotation.
+	 * NOTE: Setting the rotation will not immediately 
+	 * rotate the object, but will tell this script how to
+	 * rotate next time LateUpdate() rotates the object.
+	 */
 	public void setRotation (float rotation) {
 		turnDirection = rotation;
 	}
 
-	/* void Move (float movementDirection) {
-		Vector3 movement = new Vector3 (movementDirection, 0, 0) * Time.deltaTime * movementSpeed;
-		gameObject.transform.Translate (movement);
-		moveDirection = 0.0f;
-	}
-
-	void Turn (float turnDirection) {
-		Vector3 currRotation = gameObject.transform.rotation.eulerAngles;
-		currRotation += (new Vector3 (0, turnDirection, 0) * Time.deltaTime * turnSpeed);
-		Quaternion rotation = Quaternion.Euler (currRotation);
-		gameObject.transform.rotation = rotation;
-		turnDirection = 0.0f;
-	} */
-
+	/*
+	 * Moves the object
+	 */
 	void Move () {
 		Vector3 movement = new Vector3 (0, 0, moveDirection) * Time.deltaTime * movementSpeed;
-		// rb.MovePosition (movement);
 		gameObject.transform.Translate (movement);
 		moveDirection = 0;
 	}
 
+	/*
+	 * Turns the object
+	 */
 	void Turn () {
 		Vector3 currRotation = gameObject.transform.rotation.eulerAngles;
 		currRotation += (new Vector3 (0, turnDirection, 0) * Time.deltaTime * turnSpeed);
@@ -99,22 +118,28 @@ public class MultiplayerTankController : MonoBehaviour {
 		turnDirection = 0.0f;
 	}
 
+	/*
+	 * Creates, then "fires" a new projectile
+	 */
 	public void Fire () {
-		// print (currFireDelay);
 		if (currFireDelay >= fireDelay) {
-			// TODO Fire projectile
 			Rigidbody projectile = Instantiate(shell, shellStartLocation.position, shellStartLocation.rotation) as Rigidbody;
 			projectile.velocity = shellStartLocation.forward * projectileSpeed;
 			projectile.GetComponent<MultiplayerProjectileController>().firingSource = gameObject;
-			// projectile.GetComponent<Collider> ().enabled = false;
 			currFireDelay = 0.0f;
 		} 
 	}
 
+	/*
+	 * "Disappears" the object, then tells the player or enemy scripts
+	 * that they're dead
+	 */
 	public void Kill () {
 		isAlive = false;
 		tankMesh.SetActive (false);
 		rb.isKinematic = true;
+		gameObject.GetComponent<Collider> ().enabled = false;
+		#pragma warning disable 0168 // Disable the unused variable warning
 		try {
 			gameObject.GetComponent <MultiplayerPlayerController> ().Kill ();
 		} catch (System.NullReferenceException e) {
@@ -123,55 +148,32 @@ public class MultiplayerTankController : MonoBehaviour {
 			gameObject.GetComponent <MultiplayerEnemyController> ().Kill ();
 		} catch (System.NullReferenceException e) {
 		}
-
-		// gameObject.SetActive (false);
-		// TODO set kinematic to stop all forces
-		// gameObject.GetComponent (Rigidbody)
+		#pragma warning restore 0168
 	} 
 
+	/*
+	 * "Reappears" the objects. This is called by the player or 
+	 * enemy scripts. 
+	 */
 	public void Spawn () {
 		gameObject.transform.position = startPosition;
 		gameObject.transform.rotation = startRotation;
 		tankMesh.SetActive (true);
 		rb.isKinematic = false;
+		gameObject.GetComponent<Collider> ().enabled = true;
 	}
 
 	/*
-	void OnTriggerEnter (Collider collider) {
-		MultiplayerProjectileController script = collider.gameObject.GetComponentInParent<MultiplayerProjectileController> ();
-		if (collider.gameObject.CompareTag ("Projectile")) {
-			if (script.firingSource != gameObject) {
-				Kill ();
-			}
-		}
-	} */
-
+	 * Checks to see if the object is falling (not on the ground) or not
+	 */
 	// http://answers.unity3d.com/questions/478240/detect-falling.html
 	bool IsFalling () {
 		return Physics.Raycast (gameObject.transform.position, Vector3.down, 1.0f);
 	}
 
-	// TODO provide projectile trajectory projection (lol)
-	// Projectile comes out at 0 deg in X and Z
-	// Projectile will not be local, but the plot will be
-	// http://answers.unity3d.com/questions/606720/drawing-projectile-trajectory.html
-	// TODO test the hell out of this
-/*	public Vector3[] plotProjectile () {
-		int vertexCount = 20;
-		LineRenderer line = gameObject.GetComponent <LineRenderer>();
-		line.SetVertexCount (vertexCount);
-		Vector3 currPosition = new Vector3 (0f, 1.5f, .5f);
-		// TODO check math
-		Vector3 currVelocity = Vector3.forward * Time.deltaTime * Mathf.Cos (10) * projectileSpeed + Vector3.up * Time.deltaTime * Mathf.Sin (10) * projectileSpeed;
-		Vector3 gravity = Physics.gravity;
-		for (int i = 0; i < vertexCount; i++) {
-			line.SetPosition (i, currPosition);
-			currVelocity += gravity * Time.deltaTime;
-			currPosition += currVelocity * Time.deltaTime; 
+	void OnTriggerEnter (Collider collider) {
+		if (collider.gameObject.CompareTag ("Bottom Plane")) {
+			Kill ();
 		}
-	}*/
-
-	// TODO determine whether or not a target is in the crosshairs or not
-
-	// Potential TODO map projectile trajectory based on local and target tanks' velocities
+	} 
 }

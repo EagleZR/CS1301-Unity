@@ -1,5 +1,15 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿/* Author: Mark Zeagler
+ * Class: CS 1301
+ * Instructor: Mona Chavoshi
+ * Project: Game 2
+ * 
+ * This is a simple script that handles the collision and death behaviors of projectiles. 
+ * The projectiles are either destroyed on collision, or after they've travelled a certain
+ * distance from the object that fired them. If they collide with a player or enemy, they
+ * will inform that object that it is dead, using the MultiplayerTankController.cs script. 
+ */
+
+using UnityEngine;
 
 public class MultiplayerProjectileController : MonoBehaviour {
 
@@ -9,15 +19,9 @@ public class MultiplayerProjectileController : MonoBehaviour {
 
 	private float age = 0.0f;
 
-
-	/* void FixedUpdate () {
-		print (Vector3.Distance (gameObject.transform.position, firingSource.transform.position) + " , " + Time.time);
-		if (Vector3.Distance (gameObject.transform.position, firingSource.transform.position) > 0.1f) {
-			gameObject.GetComponent<Collider> ().enabled = true;
-			print ("Collisions on");
-		}
-	}*/
-
+	/* 
+	 * Kills the porjectile after it's traveled a certain distance away from its firing source. This prevents the build-up of unimportant objects.
+	 */
 	void Update () {
 		age += 1.0f * Time.deltaTime;
 		if (Vector3.Distance (gameObject.transform.position, firingSource.transform.position) > 100.0f || age > killTime) {
@@ -25,16 +29,19 @@ public class MultiplayerProjectileController : MonoBehaviour {
 		}
 	}
 
+	/* 
+	 * Handles different collisions in different ways, passing the correct message to the correct 
+	 */ 
 	void OnCollisionEnter (Collision other) {
-		if (other.gameObject != firingSource) {
-			if (other.gameObject.tag == "Player" || other.gameObject.tag == "Enemy") {
-				other.gameObject.GetComponent <MultiplayerTankController> ().Kill ();
+		if (other.gameObject != firingSource) { // Had some issues where it would hit the collider on its way out.
+			if (other.gameObject.tag == "Player" || other.gameObject.tag == "Enemy") { 
+				other.gameObject.GetComponent <MultiplayerTankController> ().Kill (); 
 
-				if (other.gameObject.CompareTag ("Player") && other.gameObject != firingSource && firingSource.name.Contains ("Player")) {
+				if (other.gameObject.CompareTag ("Player") && other.gameObject != firingSource && firingSource.name.Contains ("Player")) { // This triggers the end-game stuff
 					firingSource.GetComponent<MultiplayerPlayerController> ().DeclareWinner ();
 				}
 
-				Object.Destroy (gameObject);
+				Object.Destroy (gameObject); // Regardless of what it hits (other than it's firer's collider), the projectile is destroyed on impact.
 			}
 		}
 	}

@@ -1,17 +1,28 @@
-﻿using UnityEngine;
+﻿/* Author: Mark Zeagler
+ * Class: CS 1301
+ * Instructor: Mona Chavoshi
+ * Project: Game 2
+ * 
+ * This is the enemy controller, responsible for making the enemies move around in patrol,
+ * look for players, and attack the players. Originally, it was going to have its own 
+ * navigation system, in which case it would use the MultiplayerTankController.cs script
+ * to actually handle the movement, but it was easier to just go with Unity's built-in 
+ * navigation system, though it results in some non-tank-like movement (translating left
+ * and right). 
+ */
+
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 public class MultiplayerEnemyController : MonoBehaviour {
 
-	private Vector3 destination = new Vector3 (0f, 0f, 0f);
-	private Vector3 startPosition;
-	private Quaternion startRotation;
+	public Vector3 destination = new Vector3 (0f, 0f, 0f);
+	public string status = "";
 
 	public GameObject tankMesh;
 	public GameObject scene;
 
-	public float delayDeath = 2.0f;
 	public float respawnTime = 4.0f;
 	public float sightDistance = 10.0f;
 	public float deathCounter = 0.0f; // WTF is this?
@@ -31,17 +42,14 @@ public class MultiplayerEnemyController : MonoBehaviour {
 	void Start () {
 		this.tankController = gameObject.GetComponent<MultiplayerTankController> ();
 		this.sceneController = scene.GetComponent<MultiplayerSceneController> ();
-		this.playersHidden = scene.GetComponent<MultiplayerSceneController> ().GetPlayers ();
+		this.playersHidden = new List<GameObject> (GameObject.FindGameObjectsWithTag ("Player"));
 		this.navigator = gameObject.GetComponent<NavMeshAgent> ();
-
-		this.startPosition = gameObject.transform.position;
-		this.startRotation = gameObject.transform.rotation;
 
 		this.destination = transform.position;
 	}
 
 	void Update () {
-		if (this.isAlive) {
+		if (!this.isAlive) {
 			Respawn ();
 		}
 	}
@@ -49,23 +57,29 @@ public class MultiplayerEnemyController : MonoBehaviour {
 	void LateUpdate () {
 		if (this.isAlive) {
 			LookForPlayers ();
-			if (this.playersFound.Count == 0) {
+			if (this.playersFound.Count == 0) { // If no players are found
+				this.status = "Patrol";
 				Patrol ();
 			} else {
+				this.status = "Attack";
 				Attack ();
 			}
-		} else {
+		} else { // If dead
 			navigator.Stop ();
 		}
 	}
 
+	/* 
+	 * When there are no players found, this just moves the tank.
+	 */
 	void Patrol () {
 		FindDestination ();
 		navigator.SetDestination(destination);
 	}
 		
-	// TODO Once a raycast has lost contact with a player, the player is "lost" again
-	// TODO If no players are located by the Raycast, revert to patrol.
+	/* 
+	 * Moves the tank towards the target. Once within range, it stops moving, rotates toward the target, and fires.
+	 */
 	void Attack () {
 		Ray checkSight = new Ray (transform.position, target.transform.position - transform.position);
 		RaycastHit hitInfo;
@@ -73,6 +87,7 @@ public class MultiplayerEnemyController : MonoBehaviour {
 		Physics.Raycast (checkSight, out hitInfo, this.sightDistance, layerMask);
 
 		/*	if (within 10m of target, and there is a clear line of fire) {
+		 * 		stop moving
 		 * 		if (the angle is pointing at the target) {
 		 * 			fire
 		 * 		} else {
@@ -87,7 +102,6 @@ public class MultiplayerEnemyController : MonoBehaviour {
 			if (Vector3.Angle (transform.forward, this.target.transform.position - transform.position) < 1.0f && hitInfo.collider.name.Equals(this.target.name)) {
 				this.tankController.Fire ();
 			} else {
-				// TODO turn towards target
 				FindRotation ();
 			}
 		} else {
@@ -97,6 +111,9 @@ public class MultiplayerEnemyController : MonoBehaviour {
 		}
 	}
 
+	/* 
+	 * Turns the tank towards the player when within range.
+	 */
 	void FindRotation () {
 		float angle = Vector3.Angle (transform.forward, this.target.transform.position - transform.position);
 
@@ -123,33 +140,26 @@ public class MultiplayerEnemyController : MonoBehaviour {
 		}
 	}
 
-	void CheckAlive () {
-		this.isAlive = this.tankController.isAlive;
-	}
-
-	// TODO take another look at this
+	/* 
+	 * Respawns the enemy tank if it has been killed. 
+	 */
 	void Respawn () {
 		this.deathCounter += 1.0f * Time.deltaTime;
 
-		if (deathCounter > delayDeath) {
-			this.tankMesh.SetActive (false); // TODO find a better way to do this... maybe
-			gameObject.GetComponent<Collider> ().enabled = false;
-		} 
-
 		if (deathCounter > respawnTime) {
-			this.tankMesh.SetActive (true);
-			gameObject.transform.position = this.startPosition;
-			gameObject.transform.rotation = this.startRotation;
+			tankController.Spawn ();
+			navigator.Resume ();
 			this.deathCounter = 0.0f;
 			this.isAlive = true;
-			this.tankController.isAlive = true;
-			gameObject.GetComponent<Collider> ().enabled = true;
 			this.destination = transform.position;
 			this.destination = this.sceneController.GenerateDestination (gameObject);
 		}
 	}
-		
-	// TODO figure out why this isn't working...
+
+	/* 
+	 * Looks for players. If players are found, it sets the nearest one as a target. If players are not found, 
+	 * but they should be, the players are removed from the list, and 
+	 */
 	void LookForPlayers () {
 		// Look for players not found
 		for (int i = 0; i < playersHidden.Count; i++) {
@@ -179,7 +189,15 @@ public class MultiplayerEnemyController : MonoBehaviour {
 				if (!hitInfo.collider.gameObject.Equals (this.playersFound [i])) {
 					// add to hidden list
 					this.playersHidden.Add (this.playersFound [i]);
+
+					/* If the player that is now hidden was the target, the destination is set
+					 * as the last known position of the target. After the enemy is transferred
+					 * back to patrol mode, it will move to that location, at which point, it 
+					 * may find the target again. This makes it harder to lose an enemy than
+					 * simply going around a wall, or down a level.
+					 */
 					if (this.playersFound [i].Equals(target)) {
+						navigator.Resume ();
 						destination = target.transform.position; // may not be necessary, but maybe... 
 						target = null;
 					}
@@ -191,45 +209,51 @@ public class MultiplayerEnemyController : MonoBehaviour {
 				}
 			}
 		}
-
-		if (this.playersFound.Count > 0) {
-			this.target = FindNearest ();
-		}
+		this.target = FindNearest ();
 	}
 		
+	/* 
+	 * Locates the nearest found player. If no players are found, it returns null.
+	 */
 	GameObject FindNearest () {
-		GameObject nearest = this.playersFound [0];
-		for (int i = 1; i < this.playersFound.Count; i++) {
-			if (Vector3.Distance(transform.position, this.playersFound[i].transform.position) < Vector3.Distance(transform.position, nearest.transform.position)) {
-				nearest = this.playersFound[i];
+		GameObject nearest = null;
+		#pragma warning disable 0168 // Disable the unused variable warning
+		try { 
+			nearest = this.playersFound [0];
+			for (int i = 1; i < this.playersFound.Count; i++) {
+				if (Vector3.Distance(transform.position, this.playersFound[i].transform.position) < Vector3.Distance(transform.position, nearest.transform.position)) {
+					nearest = this.playersFound[i];
+				}
 			}
+		} catch (System.ArgumentOutOfRangeException e) {
 		}
+		#pragma warning restore 0168
 		return nearest;
 	}
 
+	/* 
+	 * Retrieves a new destination from the MultiplayerSceneController.cs script.
+	 * If the tank is still traveling towards a destination, this method does nothing.
+	 * Once the tank is within a certain distance of the destination, it'll ask for a 
+	 * new one. 
+	 */
 	void FindDestination () {
 		if (Vector3.Distance (transform.position, this.destination) < 5.0f) {
 			this.destination = sceneController.GenerateDestination (gameObject);
-			// print (transform.position + " , " + this.destination);
 		}
 	}
 
-	void OnTriggerEnter (Collider other) {
-		if (other.gameObject.CompareTag ("Bottom Plane")) {
-			this.tankController.Kill();
-		} 
-	}
-
-	void Reset () {
-		transform.position = this.startPosition;
-		transform.rotation = this.startRotation;
-	}
-
+	/* 
+	 * Returns this object's destination for use by an outside script.
+	 */
 	public Vector3 GetDestination () {
 		return this.destination;
 	}
 
+	/* 
+	 * Called by the MultiplayerTankController.cs script when the shared object is killed.
+	 */
 	public void Kill () {
-		// Object.Destroy (gameObject);
+		this.isAlive = false;
 	}
 }
