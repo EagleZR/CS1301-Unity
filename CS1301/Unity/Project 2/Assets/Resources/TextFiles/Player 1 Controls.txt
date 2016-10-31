@@ -1,0 +1,9 @@
+Forward: W
+Back: S
+Left: Q
+Right: E
+RLeft: A
+RRight: D
+Action: LeftAlt
+Reset: R
+// Leave this line here. 
