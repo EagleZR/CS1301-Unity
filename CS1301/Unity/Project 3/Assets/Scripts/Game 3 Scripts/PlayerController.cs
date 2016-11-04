@@ -14,7 +14,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-public class MultiplayerPlayerController : MonoBehaviour {
+public class PlayerController : MonoBehaviour {
 
 	public Text countdownText;
 	public Text restartText;
@@ -28,7 +28,7 @@ public class MultiplayerPlayerController : MonoBehaviour {
 	// public GameObject scene;
 	// public GameObject spawnArea;
 
-	private MultiplayerTankController tankController;
+	private TankController tankController;
 	// private MultiplayerSceneController sceneController;
 
 	private double currDelay; // Timing variable for the respawn timer.
@@ -43,7 +43,7 @@ public class MultiplayerPlayerController : MonoBehaviour {
 
 	void Start () {
 		// this.sceneController = this.scene.GetComponent<MultiplayerSceneController> ();
-		this.tankController = gameObject.GetComponent<MultiplayerTankController> ();
+		this.tankController = gameObject.GetComponent<TankController> ();
 
 		this.winText.text = "You will spawn in:";
 		this.debugText.text = "";
@@ -174,10 +174,6 @@ public class MultiplayerPlayerController : MonoBehaviour {
 	}
 
 	void OnTriggerExit (Collider other) {
-		if (other.gameObject.CompareTag("Mine")) {
-			other.gameObject.GetComponent<MineController>().Explode();
-			this.tankController.Kill();
-		}
 		/* 
 		if (other.name.Equals ("Start Exit Wall")) {
 			spawnArea.SetActive (false);

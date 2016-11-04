@@ -15,7 +15,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class MultiplayerEnemyController : MonoBehaviour {
+public class EnemyController : MonoBehaviour {
 
 	public Vector3 destination = new Vector3 (0f, 0f, 0f);
 	public string status = "";
@@ -29,8 +29,8 @@ public class MultiplayerEnemyController : MonoBehaviour {
 
 	public bool isAlive = true;
 
-	private MultiplayerTankController tankController;
-	private MultiplayerSceneController sceneController;
+	private TankController tankController;
+	private SceneController sceneController;
 
 	private NavMeshAgent navigator;
 
@@ -40,9 +40,9 @@ public class MultiplayerEnemyController : MonoBehaviour {
 	private List<GameObject> playersHidden;
 
 	void Start () {
-		this.tankController = gameObject.GetComponent<MultiplayerTankController> ();
+		this.tankController = gameObject.GetComponent<TankController> ();
 		this.tankController.movementHandledOutside = true;
-		this.sceneController = this.scene.GetComponent<MultiplayerSceneController> ();
+		this.sceneController = this.scene.GetComponent<SceneController> ();
 		this.playersHidden = new List<GameObject> (GameObject.FindGameObjectsWithTag ("Player"));
 		this.navigator = gameObject.GetComponent<NavMeshAgent> ();
 

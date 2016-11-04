@@ -18,7 +18,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
-public class MultiplayerSceneController : MonoBehaviour {
+public class SceneController : MonoBehaviour {
 	
 	public Text keymapText;
 	public Text centerText;
@@ -114,7 +114,7 @@ public class MultiplayerSceneController : MonoBehaviour {
 	 * Creates the enemies at the beginning of the game.
 	 */
 	void GenerateEnemies () {
-		this.enemy.GetComponent<MultiplayerEnemyController> ().scene = gameObject;
+		this.enemy.GetComponent<EnemyController> ().scene = gameObject;
 		for (int i = 0; i < 5; i++) {
 			if (floorType [i] == 'A') {
 				Instantiate (this.enemy, new Vector3 (this.waypoint2A.x, this.floorHeight [i], this.waypoint2A.z), Quaternion.identity);
@@ -184,7 +184,7 @@ public class MultiplayerSceneController : MonoBehaviour {
 			}
 
 			// Check which level each enemy is going towards
-			height = enemies [i].GetComponent <MultiplayerEnemyController> ().GetDestination ().y;
+			height = enemies [i].GetComponent <EnemyController> ().GetDestination ().y;
 			level = -1;
 
 			if (height > 16) {
@@ -272,7 +272,7 @@ public class MultiplayerSceneController : MonoBehaviour {
 		for (int i = 0; i < 5; i++) {
 			float sum = 0.0f;
 			for (int u = 0; u < projLevels [newDestinationLevel].Count; u++) {
-				sum += Vector3.Distance (floorWaypoint [i], projLevels [newDestinationLevel] [u].GetComponent<MultiplayerEnemyController> ().GetDestination ());
+				sum += Vector3.Distance (floorWaypoint [i], projLevels [newDestinationLevel] [u].GetComponent<EnemyController> ().GetDestination ());
 			}
 
 			if (sum > furthestDistance && Vector3.Distance(floorWaypoint [i], requester.transform.position) > 10) {

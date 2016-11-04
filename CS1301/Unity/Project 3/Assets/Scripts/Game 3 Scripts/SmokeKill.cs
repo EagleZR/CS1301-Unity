@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MultiplayerSmokeKill : MonoBehaviour {
+public class SmokeKill : MonoBehaviour {
 
 	public float smokeLifetime;
 

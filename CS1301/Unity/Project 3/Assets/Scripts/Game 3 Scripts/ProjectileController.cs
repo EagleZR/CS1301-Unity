@@ -11,7 +11,7 @@
 
 using UnityEngine;
 
-public class MultiplayerProjectileController : MonoBehaviour {
+public class ProjectileController : MonoBehaviour {
 
 	public GameObject firingSource;
 	public GameObject explosion;
@@ -36,11 +36,11 @@ public class MultiplayerProjectileController : MonoBehaviour {
 	void OnCollisionEnter (Collision other) {
 		if (other.gameObject != firingSource) { // Had some issues where it would hit the collider on its way out.
 			if (other.gameObject.tag == "Player" || other.gameObject.tag == "Enemy") { 
-				other.gameObject.GetComponent <MultiplayerTankController> ().Kill (); 
+				other.gameObject.GetComponent <TankController> ().Kill (); 
 				Instantiate (this.explosion, other.transform.position, other.transform.rotation);
 
 				if (other.gameObject.CompareTag ("Player") && other.gameObject != firingSource && firingSource.name.Contains ("Player")) { // This triggers the end-game stuff
-					firingSource.GetComponent<MultiplayerPlayerController> ().DeclareWinner ();
+					firingSource.GetComponent<PlayerController> ().DeclareWinner ();
 				}
 
 				Object.Destroy (gameObject); // Regardless of what it hits (other than it's firer's collider), the projectile is destroyed on impact.

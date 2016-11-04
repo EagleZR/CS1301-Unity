@@ -29,6 +29,6 @@ public class MineController : MonoBehaviour {
 	public void Explode () {
 		this.hasExploded = true;
 		mineMesh.enabled = false;
-		Instantiate( this.explosion, transform );
+		Instantiate( this.explosion, transform.position, Quaternion.identity, transform );
 	}
 }
