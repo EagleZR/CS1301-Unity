@@ -1,4 +1,12 @@
-﻿// TODO NOTE: May be able to create a generic enemy class with shared behaviors
+﻿/* Author: Mark Zeagler
+ * Class: CS 1301
+ * Instructor: Mona Chavoshi
+ * Project: Game 3
+ *
+ * 
+ */
+
+// TODO NOTE: May be able to create a generic enemy class with shared behaviors
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -12,6 +20,7 @@ public class TurretController : MonoBehaviour {
 	public Rigidbody shell;
 	public GameObject smoke;
 	public GameObject destroyedSmoke;
+	public GameObject baseMesh;
 	public GameObject turretMesh;
 	public Transform shellStartLocation;
 
@@ -23,6 +32,8 @@ public class TurretController : MonoBehaviour {
 
 	private List<GameObject> hiddenTanks;
 	private List<GameObject> foundTanks;
+
+	private bool lastTurnRight = false;
 
 	void Start () {
 		this.foundTanks = new List<GameObject>();
@@ -113,7 +124,14 @@ public class TurretController : MonoBehaviour {
 		}
 	}
 
+	// Method 1: Pick a random GameObject as the target and turn towards it
+
+	// Method 2: Turn 60 degrees right, 30 degrees left, and repeat
 	Vector3 GetNewTarget () {
+		
+		if (this.lastTurnRight) {
+
+		}
 		// TODO Find a way to generate a new target to look at
 		return Vector3.left;
 	}

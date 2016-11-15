@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>5.4.1f1</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion Condition=" '$(VisualStudioVersion)' != '10.0' ">4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -107,16 +105,22 @@
     <Compile Include="Assets\Prefabs\Realistic Terrain Collection\Other\Effects\ImageEffects\Scripts\Twirl.cs" />
     <Compile Include="Assets\Prefabs\Realistic Terrain Collection\Other\Effects\ImageEffects\Scripts\VignetteAndChromaticAberration.cs" />
     <Compile Include="Assets\Prefabs\Realistic Terrain Collection\Other\Effects\ImageEffects\Scripts\Vortex.cs" />
-    <Compile Include="Assets\Scripts\Game 3 Scripts\MineController.cs" />
+    <Compile Include="Assets\RoadTool\Scripts\Road.cs" />
+    <Compile Include="Assets\RoadTool\Scripts\RoadMath.cs" />
+    <Compile Include="Assets\RoadTool\Scripts\RoadUtils.cs" />
     <Compile Include="Assets\Scripts\Game 3 Scripts\EnemyController.cs" />
+    <Compile Include="Assets\Scripts\Game 3 Scripts\MineController.cs" />
     <Compile Include="Assets\Scripts\Game 3 Scripts\PlayerController.cs" />
     <Compile Include="Assets\Scripts\Game 3 Scripts\ProjectileController.cs" />
     <Compile Include="Assets\Scripts\Game 3 Scripts\SceneController.cs" />
     <Compile Include="Assets\Scripts\Game 3 Scripts\SmokeKill.cs" />
     <Compile Include="Assets\Scripts\Game 3 Scripts\TankController.cs" />
+    <Compile Include="Assets\Scripts\Game 3 Scripts\TerraceSpawner.cs" />
     <Compile Include="Assets\Scripts\Game 3 Scripts\TurretController.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Prefabs\Buildings\UK Terraced Houses FREE\Readme.txt" />
+    <None Include="Assets\Prefabs\KajamansRoads\FileNamesDescription.txt" />
     <None Include="Assets\Prefabs\Realistic Terrain Collection\Other\Effects\ImageEffects\Shaders\BlendModesOverlay.shader" />
     <None Include="Assets\Prefabs\Realistic Terrain Collection\Other\Effects\ImageEffects\Shaders\BlurEffectConeTaps.shader" />
     <None Include="Assets\Prefabs\Realistic Terrain Collection\Other\Effects\ImageEffects\Shaders\CameraMotionBlur.shader" />
@@ -185,6 +189,9 @@
     <None Include="Assets\Prefabs\Realistic Terrain Collection\Other\Effects\ImageEffects\Shaders\frag_ao.cginc" />
     <None Include="Assets\Resources\TextFiles\Player 1 Controls.txt" />
     <None Include="Assets\Resources\TextFiles\Player 2 Controls.txt" />
+    <None Include="Assets\RoadTool\Example\Standard Assets\Skyboxes\_skybox info.txt" />
+    <None Include="Assets\RoadTool\README.txt" />
+    <None Include="Assets\RoadTool\Texture\Texture Credits.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

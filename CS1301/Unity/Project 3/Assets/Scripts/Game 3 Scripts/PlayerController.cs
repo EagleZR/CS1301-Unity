@@ -1,13 +1,9 @@
 ﻿/* Author: Mark Zeagler
  * Class: CS 1301
  * Instructor: Mona Chavoshi
- * Project: Game 2
+ * Project: Game 3
  * 
- * This script handles user input, and passes that to the MultiplayerTankController.cs script.
- * Inputs can be customized using the text files in the Assets/Resources/Text Files/ folder,
- * but the keyboard-layout UI image would have to be adjusted manually. I thought about
- * handling the sprite placements with this script, but I didn't really feel like it yet.
- * Maybe a later version will have it. 
+ * 
  */
 
 using UnityEngine;
@@ -169,14 +165,6 @@ public class PlayerController : MonoBehaviour {
 			this.restartText.text = "Please press '" + keys [(int)Keys.Reset].ToString () + "' to reset.";
 		} else {
 			this.restartText.text = "Please press '" + KeyCode.Alpha1.ToString () + "' to reset.";
-		}
-		*/
-	}
-
-	void OnTriggerExit (Collider other) {
-		/* 
-		if (other.name.Equals ("Start Exit Wall")) {
-			spawnArea.SetActive (false);
 		}
 		*/
 	}

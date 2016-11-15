@@ -1,4 +1,12 @@
-﻿using UnityEngine;
+﻿/* Author: Mark Zeagler
+ * Class: CS 1301
+ * Instructor: Mona Chavoshi
+ * Project: Game 3
+ *
+ * 
+ */
+
+using UnityEngine;
 using System.Collections;
 
 public class MineController : MonoBehaviour {
@@ -30,5 +38,12 @@ public class MineController : MonoBehaviour {
 		this.hasExploded = true;
 		mineMesh.enabled = false;
 		Instantiate( this.explosion, transform.position, Quaternion.identity, transform );
+	}
+
+	void OnCollisionEnter (Collision other) {
+		if (other.gameObject.CompareTag ("Player") || other.gameObject.CompareTag( "Enemy" )) {
+			other.gameObject.GetComponent<TankController>().Kill();
+			Explode();
+		}
 	}
 }

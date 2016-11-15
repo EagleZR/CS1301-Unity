@@ -1,12 +1,9 @@
 ﻿/* Author: Mark Zeagler
  * Class: CS 1301
  * Instructor: Mona Chavoshi
- * Project: Game 2
+ * Project: Game 3
  * 
- * This is a simple script that handles the collision and death behaviors of projectiles. 
- * The projectiles are either destroyed on collision, or after they've travelled a certain
- * distance from the object that fired them. If they collide with a player or enemy, they
- * will inform that object that it is dead, using the MultiplayerTankController.cs script. 
+ * 
  */
 
 using UnityEngine;
@@ -14,11 +11,16 @@ using UnityEngine;
 public class ProjectileController : MonoBehaviour {
 
 	public GameObject firingSource;
+	public GameObject firingSmoke;
 	public GameObject explosion;
 
 	public float killTime = 4.0f;
 
 	private float age = 0.0f;
+
+	void Start () {
+		Instantiate( this.firingSmoke, transform.position, transform.rotation );
+	}
 
 	/* 
 	 * Kills the porjectile after it's traveled a certain distance away from its firing source. This prevents the build-up of unimportant objects.
@@ -37,15 +39,9 @@ public class ProjectileController : MonoBehaviour {
 		if (other.gameObject != firingSource) { // Had some issues where it would hit the collider on its way out.
 			if (other.gameObject.tag == "Player" || other.gameObject.tag == "Enemy") { 
 				other.gameObject.GetComponent <TankController> ().Kill (); 
-				
-
-				if (other.gameObject.CompareTag ("Player") && other.gameObject != firingSource && firingSource.name.Contains ("Player")) { // This triggers the end-game stuff
-					firingSource.GetComponent<PlayerController> ().DeclareWinner ();
-				}
-				Object.Destroy (gameObject); // Regardless of what it hits (other than it's firer's collider), the projectile is destroyed on impact.
-			}
+			} // TODO Add something for the turrets
 			Instantiate( this.explosion, transform.position, transform.rotation );
-			GameObject.Destroy( gameObject );
+			GameObject.Destroy( gameObject ); // Regardless of what it hits (other than it's firer's collider), the projectile is destroyed on impact.
 		}
 	}
 }

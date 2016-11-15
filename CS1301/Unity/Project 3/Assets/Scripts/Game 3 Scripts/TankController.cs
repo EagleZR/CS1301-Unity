@@ -1,18 +1,9 @@
 ﻿/* Author: Mark Zeagler
  * Class: CS 1301
  * Instructor: Mona Chavoshi
- * Project: Game 2
+ * Project: Game 3
  *
- * This class handles the basic commands for the tank objects. The specific behaviors are listed below. 
- * - Tank Movement 
- * - Tank Firing 
- * - Tank Death
- * - Tank Respawn
- * - Tank Roll Reset 
  * 
- * Each of these behaviors are handled called by a separate script, depending on the type of GameObject it is attached to. 
- * This is a consolidation of those behaviors into a single script to ensure that the Players and Enemies are basically 
- * using the same kind of tanks, but with different forms of input and control. 
  */
 
 using UnityEngine;
@@ -36,6 +27,7 @@ public class TankController : MonoBehaviour {
 	public bool isAlive;
 	public bool movementHandledOutside = false;
 	public bool isMoving = false;
+	public bool isTurning = false;
 
 	public AudioSource tankAudio;
 	public AudioClip engineDriving;
@@ -54,7 +46,7 @@ public class TankController : MonoBehaviour {
 
 	void Start () {
 		this.tankAudio.clip = this.engineIdling;
-		this.tankAudio.pitch = Random.Range( this.tankAudio.pitch - 2.0f, this.tankAudio.pitch + 2.0f );
+		this.tankAudio.pitch = Random.Range( this.tankAudio.pitch - 0.5f, this.tankAudio.pitch + 1.0f );
 		this.tankAudio.Play();
 		this.isAlive = true;
 		this.startPosition = gameObject.transform.position;
@@ -135,9 +127,9 @@ public class TankController : MonoBehaviour {
 	 */
 	void Turn () {
 		if ( Mathf.Abs( this.turnDirection ) == 0 && !this.movementHandledOutside ) {
-			this.isMoving = false;
+			this.isTurning = false;
 		} else if ( !this.movementHandledOutside ) {
-			this.isMoving = true;
+			this.isTurning = true;
 		}
 		Vector3 currRotation = gameObject.transform.rotation.eulerAngles;
 		currRotation += ( new Vector3( 0, this.turnDirection, 0 ) * Time.deltaTime * this.turnSpeed );
@@ -150,7 +142,7 @@ public class TankController : MonoBehaviour {
 	 * Controls the engine's audio output based on movement.
 	 */
 	void Audio () {
-		if ( !this.isMoving ) {
+		if ( !this.isMoving && !this.isTurning) {
 			if ( this.tankAudio.clip == this.engineDriving ) {
 				this.tankAudio.clip = this.engineIdling;
 				this.tankAudio.Play();
@@ -169,7 +161,7 @@ public class TankController : MonoBehaviour {
 	public void Fire () {
 		if ( this.currFireDelay >= this.fireDelay ) {
 			Rigidbody projectile = Instantiate( this.shell, this.shellStartLocation.position, this.shellStartLocation.rotation ) as Rigidbody;
-			Instantiate( this.smoke, this.shellStartLocation.position, this.shellStartLocation.rotation );
+			// Instantiate( this.smoke, this.shellStartLocation.position, this.shellStartLocation.rotation );
 			projectile.velocity = this.shellStartLocation.forward * this.projectileSpeed;
 			projectile.GetComponent<ProjectileController>().firingSource = gameObject;
 			this.currFireDelay = 0.0f;
@@ -222,6 +214,7 @@ public class TankController : MonoBehaviour {
 		this.tankTurretMesh.SetActive( true );
 		this.rb.isKinematic = false;
 		gameObject.GetComponent<Collider>().enabled = true;
+		gameObject.layer = 12; // Sets to spawner layer
 	}
 
 	/*
@@ -233,12 +226,16 @@ public class TankController : MonoBehaviour {
 	}
 
 	void OnTriggerEnter ( Collider collider ) {
+		/*
 		if ( collider.gameObject.CompareTag( "Bottom Plane" ) ) {
 			Kill();
 		}
-		if ( collider.gameObject.CompareTag( "Mine" ) ) {
-			collider.gameObject.GetComponent<MineController>().Explode();
-			Kill();
+		*/
+	}
+
+	void OnTriggerExit ( Collider other ) {
+		if ( other.gameObject.CompareTag( "Spawn Trigger" ) ) {
+			gameObject.layer = 8; // Converts to tank layer
 		}
 	}
 }

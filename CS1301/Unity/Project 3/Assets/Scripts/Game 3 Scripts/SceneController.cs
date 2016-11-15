@@ -1,16 +1,9 @@
 ﻿/* Author: Mark Zeagler
  * Class: CS 1301
  * Instructor: Mona Chavoshi
- * Project: Game 2
+ * Project: Game 3
  * 
- * Handles the scene. At the start, it creates all of the enemy tanks, and tells them
- * where to go. It also handles the end game, quitting the game, and restarting the 
- * game. 
  * 
- * Originally, when the enemy tanks were going to use their own navigation controllers,
- * this was going to have the tanks move in mapping patterns until they learned the map,
- * then use that for a more coordinated control of the enemies when a player was found
- * on a certain layer, but that was just too much.
  */
 
 using UnityEngine;

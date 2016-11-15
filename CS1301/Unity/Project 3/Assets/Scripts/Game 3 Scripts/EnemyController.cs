@@ -1,14 +1,9 @@
 ﻿/* Author: Mark Zeagler
  * Class: CS 1301
  * Instructor: Mona Chavoshi
- * Project: Game 2
+ * Project: Game 3
  * 
- * This is the enemy controller, responsible for making the enemies move around in patrol,
- * look for players, and attack the players. Originally, it was going to have its own 
- * navigation system, in which case it would use the MultiplayerTankController.cs script
- * to actually handle the movement, but it was easier to just go with Unity's built-in 
- * navigation system, though it results in some non-tank-like movement (translating left
- * and right). 
+ * 
  */
 
 using UnityEngine;

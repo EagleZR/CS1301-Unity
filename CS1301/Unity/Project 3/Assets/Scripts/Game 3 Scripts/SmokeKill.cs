@@ -1,4 +1,12 @@
-﻿using UnityEngine;
+﻿/* Author: Mark Zeagler
+ * Class: CS 1301
+ * Instructor: Mona Chavoshi
+ * Project: Game 3
+ *
+ * 
+ */
+
+using UnityEngine;
 using System.Collections;
 
 public class SmokeKill : MonoBehaviour {
