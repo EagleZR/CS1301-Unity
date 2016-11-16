@@ -108,6 +108,8 @@
     <Compile Include="Assets\RoadTool\Scripts\Road.cs" />
     <Compile Include="Assets\RoadTool\Scripts\RoadMath.cs" />
     <Compile Include="Assets\RoadTool\Scripts\RoadUtils.cs" />
+    <Compile Include="Assets\Scripts\Game 3 Scripts\CameraRotator.cs" />
+    <Compile Include="Assets\Scripts\Game 3 Scripts\CameraSwitcher.cs" />
     <Compile Include="Assets\Scripts\Game 3 Scripts\EnemyController.cs" />
     <Compile Include="Assets\Scripts\Game 3 Scripts\MineController.cs" />
     <Compile Include="Assets\Scripts\Game 3 Scripts\PlayerController.cs" />
