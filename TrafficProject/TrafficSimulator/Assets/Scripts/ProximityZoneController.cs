@@ -10,7 +10,7 @@ public class ProximityZoneController : MonoBehaviour {
 	}
 
 	private void OnTriggerEnter ( Collider other ) {
-		if ( other.CompareTag( "Car" ) || other.CompareTag("Road Indicator") ) {
+		if ( ( other.CompareTag( "Car" ) && !other.Equals( gameObject ) ) || other.CompareTag( "Road Indicator" ) ) {
 			containedCars.Add( other.gameObject );
 		}
 	}
@@ -18,6 +18,6 @@ public class ProximityZoneController : MonoBehaviour {
 	private void OnTriggerExit ( Collider other ) {
 		if ( containedCars.Contains( other.gameObject ) ) {
 			containedCars.Remove( other.gameObject );
-		} 
+		}
 	}
 }

@@ -22,6 +22,10 @@ public class CarController : MonoBehaviour {
 	[Range( 1, 10 )]
 	public int driverComptetency;
 
+	public float carLength = 1.6f;
+	#endregion
+
+	#region Colliders 
 	// Colliders for swiching lanes.
 	/// <summary>
 	/// Checks if there is a rear-end type collision that will occur 
@@ -90,17 +94,44 @@ public class CarController : MonoBehaviour {
 	public DrivingBehavior CurrBehavior {
 		set { this.currBehavior = value; }
 	}
+
+	private DrivingAttributes currAttribute;
+	public DrivingAttributes CurrAttribute {
+		get { return this.currAttribute; }
+	}
 	#endregion
 
 	private void Start () {
+		// Convert m/s to u/s
+		preferredSpeed = preferredSpeed / 4.5f * 1.6f;
+		maxPositiveAcceleration = maxPositiveAcceleration / 4.5f * 1.6f;
+		maxBrakingSpeed = maxBrakingSpeed / 4.5f * 1.6f;
+
 		rb = gameObject.GetComponent<Rigidbody>();
 		this.preferredAcceleration = accelerations[this.aggression];
 		currBehavior = new CruisingBehavior( gameObject );
+		currAttribute = ( this.aggression == (int)Aggression.EASYGOING ? (DrivingAttributes)new EasyGoingAttributes() : ( this.aggression == (int)Aggression.MODERATE ? (DrivingAttributes)new ModerateAttributes() : (DrivingAttributes)new AggressiveAttributes() ) );
+
+		leftMergeCollider.transform.localScale = new Vector3( carLength * currAttribute.MergeBufferMultiplier, leftMergeCollider.transform.localScale.y, leftMergeCollider.transform.localScale.z );
+		rightMergeCollider.transform.localScale = new Vector3( carLength * currAttribute.MergeBufferMultiplier, rightMergeCollider.transform.localScale.y, rightMergeCollider.transform.localScale.z );
 	}
 
 	void LateUpdate () {
+		AdjustColliders();
 		currBehavior.ExecuteAction();
 		LateralDrag();
+	}
+
+	void AdjustColliders () {
+		frontCollider.transform.localScale = new Vector3( GetBrakingDistance( GetAverageBrakingSpeed(), rb.velocity.x, 0 ) * currAttribute.FrontBufferMultiplier, frontCollider.transform.localScale.y, frontCollider.transform.localScale.z );
+		frontCollider.transform.localPosition = new Vector3( ( frontCollider.transform.localScale.x + carLength ) / 2 + 0.1f, 0, 0 );
+		forwardCollider.transform.localScale = new Vector3( GetBrakingDistance( GetStrongBrakingSpeed(), rb.velocity.x, 0 ) * currAttribute.ForwardBufferMultiplier, forwardCollider.transform.localScale.y, forwardCollider.transform.localScale.z );
+		forwardCollider.transform.localPosition = new Vector3( ( forwardCollider.transform.localScale.x + carLength ) / 2 + 0.1f, 0, 0 );
+
+		leftFrontTurnCollider.transform.localScale = new Vector3( frontCollider.transform.localScale.x * currAttribute.LaneChangeBufferMultiplier, leftFrontTurnCollider.transform.localScale.y, leftFrontTurnCollider.transform.localScale.z );
+		leftFrontTurnCollider.transform.localPosition = new Vector3( leftFrontTurnCollider.transform.localScale.x / 2, leftFrontTurnCollider.transform.localPosition.y, leftFrontTurnCollider.transform.localPosition.z );
+		rightFrontTurnCollider.transform.localScale = new Vector3( frontCollider.transform.localScale.x * currAttribute.LaneChangeBufferMultiplier, rightFrontTurnCollider.transform.localScale.y, rightFrontTurnCollider.transform.localScale.z );
+		rightFrontTurnCollider.transform.localPosition = new Vector3( rightFrontTurnCollider.transform.localScale.x / 2, rightFrontTurnCollider.transform.localPosition.y, rightFrontTurnCollider.transform.localPosition.z );
 	}
 
 	/// <summary>
@@ -147,9 +178,13 @@ public class CarController : MonoBehaviour {
 		return this.maxBrakingSpeed / 2.0f;
 	}
 
-	private float GetBrakingDistance ( float brakingSpeed, float initialSpeed, float finalSpeed ) {
+	private static float GetBrakingDistance ( float brakingSpeed, float initialSpeed, float finalSpeed ) {
+		/*
 		float brakeTime = ( initialSpeed - finalSpeed ) / brakingSpeed;
 		return brakingSpeed * brakeTime * brakeTime + ( initialSpeed - finalSpeed ) * brakeTime;
+		*/
+		// http://www.webpages.uidaho.edu/niatt_labmanual/Chapters/geometricdesign/theoryandconcepts/BrakingDistance.htm
+		return ( initialSpeed * initialSpeed - finalSpeed * finalSpeed ) / ( 2 * brakingSpeed );
 	}
 	#endregion
 
@@ -166,6 +201,139 @@ public class CarController : MonoBehaviour {
 		}
 	}
 
+	/// <summary>
+	/// Accelerates the Car. Not sure if I should allow for varying accelerations....
+	/// </summary>
+	public void Accelerate () {
+		rb.AddRelativeForce( ( preferredAcceleration < maxPositiveAcceleration ? preferredAcceleration : maxPositiveAcceleration ), 0, 0, ForceMode.Acceleration );
+	}
+
+	// Use these to set the speed/acceleration/buffers of the different aggressions
+	#region Driving Attributes
+	/// <summary>
+	/// I might try to find a better way to do this. For now, it's what I'm using.
+	/// </summary>
+	public abstract class DrivingAttributes {
+		public abstract float FrontBufferMultiplier {
+			get;
+		}
+
+		public abstract float ForwardBufferMultiplier {
+			get;
+		}
+
+		public abstract float MergeBufferMultiplier {
+			get;
+		}
+
+		public abstract float LaneChangeBufferMultiplier {
+			get;
+		}
+
+		public abstract float SpeedBuffer {
+			get;
+		}
+	}
+
+	public class EasyGoingAttributes : DrivingAttributes {
+		public override float FrontBufferMultiplier {
+			get {
+				return 2.0f;
+			}
+		}
+
+		public override float ForwardBufferMultiplier {
+			get {
+				return 2.0f;
+			}
+		}
+
+		public override float MergeBufferMultiplier {
+			get {
+				return 2.0f;
+			}
+		}
+
+		public override float LaneChangeBufferMultiplier {
+			get {
+				return 2.0f;
+			}
+		}
+
+		public override float SpeedBuffer {
+			get {
+				return 5.0f;
+			}
+		}
+	}
+
+	public class ModerateAttributes : DrivingAttributes {
+		public override float FrontBufferMultiplier {
+			get {
+				return 1.5f;
+			}
+		}
+
+		public override float ForwardBufferMultiplier {
+			get {
+				return 1.5f;
+			}
+		}
+
+		public override float MergeBufferMultiplier {
+			get {
+				return 1.5f;
+			}
+		}
+
+		public override float LaneChangeBufferMultiplier {
+			get {
+				return 1.5f;
+			}
+		}
+
+		public override float SpeedBuffer {
+			get {
+				return 2.5f;
+			}
+		}
+	}
+
+	public class AggressiveAttributes : DrivingAttributes {
+		public override float FrontBufferMultiplier {
+			get {
+				return 1.1f;
+			}
+		}
+
+		public override float ForwardBufferMultiplier {
+			get {
+				return 1.1f;
+			}
+		}
+
+		public override float MergeBufferMultiplier {
+			get {
+				return 1.1f;
+			}
+		}
+
+		public override float LaneChangeBufferMultiplier {
+			get {
+				return 1.1f;
+			}
+		}
+
+		public override float SpeedBuffer {
+			get {
+				return 1.0f;
+			}
+		}
+	}
+
+	#endregion
+
+	#region Driving Behaviors 
 	// Complete
 	/// <summary>
 	/// <para>Abstract class for the various driving behaviors.</para>
@@ -202,14 +370,11 @@ public class CarController : MonoBehaviour {
 		/// </summary>
 		public override void ExecuteAction () {
 			if ( base.parentScript.frontCollider.GetComponent<ProximityZoneController>().containedCars.Count > 0 ) {
+				GameObject object1 = (GameObject)base.parentScript.frontCollider.GetComponent<ProximityZoneController>().containedCars[0];
 				HandleObstruction();
 				return;
 			}
-			if ( parentScript.rb.velocity.x < parentScript.preferredSpeed ) {
-				parentScript.rb.AddRelativeForce( ( parentScript.preferredAcceleration < parentScript.maxPositiveAcceleration ? parentScript.preferredAcceleration : parentScript.maxPositiveAcceleration ), 0, 0, ForceMode.Acceleration );
-			} else {
-				// Maintain speed
-			}
+			Drive();
 		}
 
 		/// <summary>
@@ -226,21 +391,44 @@ public class CarController : MonoBehaviour {
 			Ray ray = new Ray( new Vector3( parent.transform.position.x + 1, parent.transform.position.y, parent.transform.position.z ), parent.transform.right );
 			RaycastHit forwardContact;
 			if ( Physics.Raycast( ray, out forwardContact, LayerMask.GetMask( "Cars", "Road Indicators" ) ) ) {
+
 				if ( forwardContact.transform.gameObject.CompareTag( "Car" ) ) {
 					float distance = forwardContact.distance;
 					GameObject obstacle = forwardContact.transform.gameObject;
-					if ( parentScript.GetBrakingDistance( parentScript.GetStrongBrakingSpeed(), parentScript.rb.velocity.magnitude, forwardContact.rigidbody.velocity.magnitude ) > distance + parentScript.forwardCollider.transform.localScale.x ) {
-						parentScript.currBehavior = new EmergencyBrakingBehavior( parent, new PassingBehavior( parent, this, obstacle ), obstacle );
-					} else if ( parentScript.GetBrakingDistance( parentScript.GetAverageBrakingSpeed(), parentScript.rb.velocity.magnitude, forwardContact.rigidbody.velocity.magnitude ) > distance + parentScript.forwardCollider.transform.localScale.x ) {
+					float obstacleVelocity = obstacle.GetComponent<CarController>().rb.velocity.magnitude;
+					if ( obstacleVelocity > parentScript.preferredSpeed ) {
+						if ( !parentScript.forwardCollider.GetComponent<ProximityZoneController>().containedCars.Contains( obstacle ) ) {
+							Drive();
+						} else {
+							// Coast
+						}
+					} else if (obstacleVelocity > parentScript.preferredSpeed - parentScript.currAttribute.SpeedBuffer) {
+						parentScript.currBehavior = new PacingBehavior( parent, this, obstacle );
+					} else {
 						parentScript.currBehavior = new PassingBehavior( parent, this, obstacle );
-					} else if ( parentScript.GetBrakingDistance( parentScript.GetLightBrakingSpeed(), parentScript.rb.velocity.magnitude, forwardContact.rigidbody.velocity.magnitude ) > distance + parentScript.forwardCollider.transform.localScale.x ) {
+					}
+					/*
+					if ( CarController.GetBrakingDistance( parentScript.GetStrongBrakingSpeed(), parentScript.rb.velocity.magnitude, forwardContact.rigidbody.velocity.magnitude ) > distance + parentScript.forwardCollider.transform.localScale.x ) {
+						parentScript.currBehavior = new EmergencyBrakingBehavior( parent, new PassingBehavior( parent, this, obstacle ), obstacle );
+					} else if ( CarController.GetBrakingDistance( parentScript.GetAverageBrakingSpeed(), parentScript.rb.velocity.magnitude, forwardContact.rigidbody.velocity.magnitude ) > distance + parentScript.forwardCollider.transform.localScale.x ) {
+						parentScript.currBehavior = new PassingBehavior( parent, this, obstacle );
+					} else if ( CarController.GetBrakingDistance( parentScript.GetLightBrakingSpeed(), parentScript.rb.velocity.magnitude, forwardContact.rigidbody.velocity.magnitude ) > distance + parentScript.forwardCollider.transform.localScale.x ) {
 						parentScript.currBehavior = new PacingBehavior( parent, new PassingBehavior( parent, this, obstacle ), obstacle );
 					} else {
 						parentScript.currBehavior = new PacingBehavior( parent, this, obstacle );
 					}
+					*/
 				} else {
 					// Road obstacles
 				}
+			}
+		}
+
+		void Drive () {
+			if ( parentScript.rb.velocity.x < parentScript.preferredSpeed ) {
+				parentScript.Accelerate();
+			} else {
+				// Maintain speed
 			}
 		}
 	}
@@ -252,18 +440,39 @@ public class CarController : MonoBehaviour {
 	public class PacingBehavior : DrivingBehavior {
 		private GameObject target;
 		private DrivingBehavior parentBehavior;
+		ProximityZoneController frontColliderController;
 
 		public PacingBehavior ( GameObject parent, DrivingBehavior parentBehavior, GameObject target ) : base( parent ) {
 			this.target = target;
 			this.parentBehavior = parentBehavior;
+			this.frontColliderController = parentScript.frontCollider.GetComponent<ProximityZoneController>();
 		}
 
 		public override void ExecuteAction () {
-			print( "pacing" );
+			if ( !frontColliderController.containedCars.Contains( target ) ) {
+				// If the target car is no longer in the front collider
+				ObstructionCleared();
+				return;
+			}
+			float targetVelocity = target.GetComponent<CarController>().rb.velocity.x;
+			if ( targetVelocity < parentScript.preferredSpeed - parentScript.currAttribute.SpeedBuffer ) {
+				// Target is going too slow, pass
+				parentScript.currBehavior = new PassingBehavior( parent, parentBehavior, target );
+			} else if ( targetVelocity > parentScript.preferredSpeed ) {
+				// Target is going too fast, revert to cruising
+				ObstructionCleared();
+			} else {
+				// Pace target
+				if ( parentScript.rb.velocity.x < targetVelocity ) {
+					parentScript.Accelerate();
+				} else {
+					// Maintain speed
+				}
+			}
 		}
 
 		private void ObstructionCleared () {
-
+			parentScript.currBehavior = parentBehavior;
 		}
 	}
 
@@ -374,7 +583,7 @@ public class CarController : MonoBehaviour {
 
 		public override void ExecuteAction () {
 			if ( obstacle != null && parentBehavior != null ) {
-				if ( parentScript.GetBrakingDistance( parentScript.GetStrongBrakingSpeed(), parentScript.rb.velocity.x, ( obstacle.CompareTag( "Car" ) ? obstacle.GetComponent<CarController>().rb.velocity.x : 0 ) ) < Vector3.Distance( base.parent.transform.position, obstacle.transform.position ) + parentScript.forwardCollider.transform.localScale.x ) {
+				if ( CarController.GetBrakingDistance( parentScript.GetStrongBrakingSpeed(), parentScript.rb.velocity.x, ( obstacle.CompareTag( "Car" ) ? obstacle.GetComponent<CarController>().rb.velocity.x : 0 ) ) < Vector3.Distance( base.parent.transform.position, obstacle.transform.position ) + parentScript.forwardCollider.transform.localScale.x ) {
 					parentScript.currBehavior = parentBehavior;
 					return;
 				}
@@ -382,5 +591,5 @@ public class CarController : MonoBehaviour {
 			parentScript.Brake( parentScript.maxBrakingSpeed );
 		}
 	}
-
+	#endregion
 }

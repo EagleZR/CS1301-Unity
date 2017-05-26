@@ -6,7 +6,8 @@ public class SimController : MonoBehaviour {
 	public ArrayList spawners;
 	public GameObject[,] road;
 	public GameObject[] exits;
-	public RoadBuilder_v2_0 roadBuilder;
+	public MonoBehaviour roadBuilder;
+	public MonoBehaviour menuController;
 
 	// Use this for initialization
 	void Start () {

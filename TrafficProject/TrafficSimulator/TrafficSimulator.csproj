@@ -79,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\CarController.cs" />
+    <Compile Include="Assets\Scripts\MenuController.cs" />
     <Compile Include="Assets\Scripts\ProximityZoneController.cs" />
     <Compile Include="Assets\Scripts\RoadBuilder.cs" />
     <Compile Include="Assets\Scripts\RoadBuilder_v2_0.cs" />
